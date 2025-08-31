@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model users {
+user_id       String      @id         @default(cuid())
+role          role                  
+user_name     String      @unique
+avatar        String                  @default("https://cdn-icons-png.flaticon.com/512/2202/2202112.png")
+email         String      @unique       
+password      String      
+google_id     String?      @unique
+city          String?
+state         String?
+is_active     Boolean                 @default(true)
+created_at    DateTime                @default(now())
+updated_at    DateTime                @default(now())
+
+// relations 
+seller                    seller?
+requirements              requirements[]
+}
+
+model seller{
+
+seller_id       String            @unique
+description     String?
+gst_number      String?
+created_at      DateTime        @default(now())
+
+// relation to user
+
+user         users       @relation(fields: [seller_id], references: [user_id])
+
+}
+
+model requirements {
+
+requirement_id        String          @id       @default(cuid())
+buyer_id              String          
+product_title         String          
+categories            String[]        @default([])
+reference_image_url   String?
+description           String?
+quantity_needed       String?
+price_range           String?
+city                  String?
+state                 String?
+delivery_location     String?
+created_at           DateTime        @default(now())
+updated_at           DateTime        @default(now())
+
+// relation to user
+buyer         users       @relation(fields: [buyer_id], references: [user_id])
+}
+
+
+
+enum role {
+  BUYER
+  SELLER
+  ADMIN
+}

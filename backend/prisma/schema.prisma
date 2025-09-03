@@ -32,6 +32,7 @@ model users {
   requirements            requirements[]
   sentChats               chatRoom[]     @relation("UserSender")
   receivedChats           chatRoom[]     @relation("UserReceiver")
+  messages                messages[]     @relation("userMessage")
 }
 
 model seller {
@@ -72,7 +73,7 @@ model chatRoom {
   receiver_id     String
   created_at      DateTime      @default(now())
   paymentId       String?       // later refrence to actual payments model
-
+  room_name       String?
 
   messages        messages[]
   sender          users         @relation("UserSender", fields: [sender_id], references: [user_id])
@@ -82,14 +83,16 @@ model chatRoom {
 model messages {
   message_id      String        @id         @default(cuid())
   room_id         String
+  sender_id       String
   content         String
-  timestamp       DateTime      @default(now())
+  timestamp       DateTime                  @default(now())
 
   chatRoom        chatRoom      @relation(fields: [room_id], references: [room_id])
+  message_sender   users        @relation("userMessage", fields: [sender_id], references: [user_id])
 }
 
 enum role {
-  BUYER
-  SELLER
-  ADMIN
+  buyer
+  seller
+  admin
 }

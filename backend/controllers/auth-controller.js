@@ -26,7 +26,7 @@ export const signIn = async (req, res) => {
 
     return res
       .status(200)
-      .json({ token, message: "User login successful", user: user.user_id });
+      .json({ token, message: "User login successful", User: user });
   } catch (error) {
     return res
       .status(500)
@@ -39,36 +39,44 @@ export const signUp = async (req, res) => {
     const { email, password, role } = req.body;
 
     if (!email || !password || !role) {
-      return res.status(404).json({ message: "All fields must be filled" });
+      return res.status(400).json({ message: "All fields must be filled" });
     }
 
-    const user = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
-    if (user) {
-      return res.status(403).json({ message: "User already exists" });
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const uniqueUserName = generateUniqueName();
 
     const newUser = await prisma.users.create({
       data: {
         user_name: uniqueUserName,
-        role: role,
-        email: email,
+        role,
+        email,
         password: hashedPassword,
         google_id: null,
       },
     });
 
-    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    // If SELLER, create seller record
+    if (role === "seller") {
+      await prisma.seller.create({
+        data: { seller_id: newUser.user_id },
+      });
+    }
 
-    return res.status(201).json({ token, user: newUser.user_id });
+    const token = jwt.sign(
+      { user_id: newUser.user_id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return res.status(201).json({ token, user: newUser });
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",
@@ -116,7 +124,7 @@ export const googleSignIn = async (req, res) => {
     return res.status(200).json({
       message: "Google Sign-In successful",
       token: jwtToken,
-      user: user.user_id,
+      User: user,
     });
   } catch (error) {
     return res.status(500).json({
@@ -125,3 +133,5 @@ export const googleSignIn = async (req, res) => {
     });
   }
 };
+
+

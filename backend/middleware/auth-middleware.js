@@ -18,7 +18,7 @@ const authTokenmiddleware = async (req, res, next) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+      .json({ message: "Unauthorized", error: error.message });
   }
 };
 

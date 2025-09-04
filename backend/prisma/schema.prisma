@@ -14,81 +14,91 @@ datasource db {
 }
 
 model users {
-  user_id       String      @id         @default(cuid())
-  role          role                  
-  user_name     String      @unique
-  avatar        String                  @default("https://cdn-icons-png.flaticon.com/512/2202/2202112.png")
-  email         String      @unique       
-  password      String?      
-  google_id     String?     @unique
-  city          String?
-  state         String?
-  is_active     Boolean                 @default(true)
-  created_at    DateTime                @default(now())
-  updated_at    DateTime                @default(now())
+  user_id                     String      @id             @default(cuid())
+  role                        role                  
+  avatar                      String                      @default("https://cdn-icons-png.flaticon.com/512/2202/2202112.png")
+  user_name                   String                      @unique
+  email                       String                      @unique       
+  password                    String?      
+  google_id                   String?                     @unique
+  city                        String?
+  state                       String?
+  is_active                   Boolean                     @default(true)
+  created_at                  DateTime                
+  updated_at                  DateTime                    @default(now())
 
   // relations 
-  seller                  seller?
-  requirements            requirements[]
-  sentChats               chatRoom[]     @relation("UserSender")
-  receivedChats           chatRoom[]     @relation("UserReceiver")
-  messages                messages[]     @relation("userMessage")
+  seller                      seller?
+  requirements                requirements[]
+  sentChats                   chatRoom[]                  @relation("UserSender")
+  receivedChats               chatRoom[]                  @relation("UserReceiver")
+  messages                    messages[]                  @relation("userMessage")
+  user_session                session[]
 }
 
 model seller {
-  seller_id       String            @unique
-  description     String?
-  gst_number      String?
-  created_at      DateTime          @default(now())
+  seller_id                   String         @id          @unique
+  description                 String?
+  gst_number                  String?
+  created_at                  DateTime          
 
   // relation to user
-  user            users             @relation(fields: [seller_id], references: [user_id])
+  user                        users                       @relation(fields: [seller_id], references: [user_id])
 }
 
 model requirements {
 
-requirement_id        String          @id       @default(cuid())
-buyer_id              String          
-product_title         String          
-categories            String[]        @default([])
-reference_image_url   String?
-description           String?
-quantity_needed       String?
-price_range           String?
-city                  String?
-state                 String?
-delivery_location     String?
-paymentId             String?       // later refrence to actual payments model
-created_at           DateTime        @default(now())
-updated_at           DateTime        @default(now())
+requirement_id                String      @id             @default(cuid())
+buyer_id                      String          
+product_title                 String          
+categories                    String[]                    @default([])
+reference_image_url           String?
+description                   String?
+quantity_needed               String?
+price_range                   String?
+city                          String?
+state                         String?
+delivery_location             String?
+paymentId                     String?       // later refrence to actual payments model
+created_at                    DateTime        
+updated_at                    DateTime                    @default(now())
 
 // relation to user
-buyer         users       @relation(fields: [buyer_id], references: [user_id])
+buyer                         users                       @relation(fields: [buyer_id], references: [user_id])
 }
 
 
 model chatRoom {
-  room_id         String        @id         @default(cuid())
-  sender_id       String
-  receiver_id     String
-  created_at      DateTime      @default(now())
-  paymentId       String?       // later refrence to actual payments model
-  room_name       String?
+  room_id                     String        @id           @default(cuid())
+  sender_id                   String
+  receiver_id                 String
+  created_at                  DateTime                    @default(now())
+  paymentId                   String?       // later refrence to actual payments model
+  room_name                   String?
 
-  messages        messages[]
-  sender          users         @relation("UserSender", fields: [sender_id], references: [user_id])
-  receiver        users         @relation("UserReceiver", fields: [receiver_id], references: [user_id])
+  messages                    messages[]
+  sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id])
+  receiver                    users                       @relation("UserReceiver", fields: [receiver_id], references: [user_id])
 }
 
 model messages {
-  message_id      String        @id         @default(cuid())
-  room_id         String
-  sender_id       String
-  content         String
-  timestamp       DateTime                  @default(now())
+  message_id                  String        @id           @default(cuid())
+  room_id                     String
+  sender_id                   String
+  content                     String
+  timestamp                   DateTime                    @default(now())
 
-  chatRoom        chatRoom      @relation(fields: [room_id], references: [room_id])
-  message_sender   users        @relation("userMessage", fields: [sender_id], references: [user_id])
+  chatRoom                    chatRoom                    @relation(fields: [room_id], references: [room_id])
+  message_sender              users                       @relation("userMessage", fields: [sender_id], references: [user_id])
+}
+
+model session{
+  id                          String        @id           @default(cuid())
+  user_id                     String            
+  created_at                  DateTime
+  updated_at                  DateTime                    @default(now())
+
+  user_session users                                      @relation(fields: [user_id], references: [user_id])
 }
 
 enum role {

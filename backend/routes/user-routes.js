@@ -3,6 +3,7 @@ import {
   createChatRoom,
   getChatRooms,
   getUserMessages,
+  logout,
   postRequirements,
   updateSellerDetails,
 } from "../controllers/user-controller.js";
@@ -18,5 +19,7 @@ router.get("/get-chatRooms", getChatRooms);
 router.post("/requirements", postRequirements);
 
 router.put("/update-seller", updateSellerDetails);
+
+router.put("/logout", logout);
 
 export default router;

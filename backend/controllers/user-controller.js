@@ -82,26 +82,88 @@ export const getChatRooms = async (req, res) => {
 };
 
 export const updateSellerDetails = async (req, res) => {
-  const { seller_id, description, gst_number } = req.body;
+  const { description, gst_number, city, state } = req.body;
+
+  const user_id = req.user.user_id;
 
   try {
-    const updatedSeller = await prisma.seller.update({
-      where: { seller_id },
-      data: {
-        description,
-        gst_number,
-      },
+    const user = await prisma.users.findUnique({
+      where: { user_id },
+      include: { seller: true },
     });
+
+    if (!user || user.role !== "seller") {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    let updatedSeller;
+    if (user.seller) {
+      updatedSeller = await prisma.seller.update({
+        where: { seller_id: user_id },
+        data: { description, gst_number },
+      });
+    } else {
+      // If seller row doesn't exist, create it
+      updatedSeller = await prisma.seller.create({
+        data: {
+          seller_id: user_id,
+          description,
+          gst_number,
+          created_at: new Date(),
+        },
+      });
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { user_id },
+      data: { city, state },
+    });
+
+    // Merge both
+    const mergedUser = {
+      ...updatedUser,
+      description: updatedSeller.description,
+      gst_number: updatedSeller.gst_number,
+    };
+
+    // Remove sensitive fields
+    const {
+      password,
+      google_id,
+      is_active,
+      created_at,
+      updated_at,
+      ...safeUser
+    } = mergedUser;
 
     return res.status(200).json({
       message: "Seller details updated successfully",
-      seller: updatedSeller,
+      User: safeUser,
     });
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
     });
+  }
+};
+
+export const logout = async (req, res) => {
+  const user_id = req.user.user_id;
+
+  try {
+    const session = await prisma.session.update({
+      where: { user_id },
+      data: {
+        updated_at: new Date(),
+      },
+    });
+
+    return res.status(200).json({ message: "logged out successfull" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
   }
 };
 

@@ -62,7 +62,7 @@ export const signIn = async (req, res) => {
     return res.status(200).json({
       token,
       message: "User login successful",
-      user: safeUser,
+      User: safeUser,
     });
   } catch (error) {
     return res.status(500).json({
@@ -143,7 +143,7 @@ export const signUp = async (req, res) => {
 };
 
 export const googleSignIn = async (req, res) => {
-  const { token, role } = req.body.data;
+  const { token, role } = req.body;
 
   try {
     if (!token) {
@@ -152,15 +152,15 @@ export const googleSignIn = async (req, res) => {
 
     const { id, email } = googleTokenDecoder(token);
 
+    if (!id || !email) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
     const uniqueUserName = generateUniqueName();
 
     let user = await prisma.users.findUnique({
       where: { email },
     });
-
-    if (!id || !email) {
-      return res.status(400).json({ message: "Invalid token" });
-    }
 
     if (!user) {
       user = await prisma.users.create({
@@ -170,19 +170,43 @@ export const googleSignIn = async (req, res) => {
           google_id: id,
           role: role,
           password: null,
+          created_at: new Date(),
         },
       });
     }
 
-    const jwtToken = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    // If SELLER, create seller record
+    if (!user && role === "seller") {
+      await prisma.seller.create({
+        data: { seller_id: user.user_id, created_at: new Date() },
+      });
+    }
+
+    const {
+      password: _,
+      google_id,
+      is_active,
+      created_at,
+      updated_at,
+      ...finalUser
+    } = user;
+
+    // create session
+
+    await prisma.session.create({
+      data: {
+        user_id: user.user_id,
+        created_at: new Date(),
+      },
     });
 
-    return res.status(200).json({
-      message: "Google Sign-In successful",
-      token: jwtToken,
-      User: user,
-    });
+    const jwtToken = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({ token: jwtToken, User: finalUser });
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",

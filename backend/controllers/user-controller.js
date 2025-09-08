@@ -150,12 +150,11 @@ export const updateSellerDetails = async (req, res) => {
 
 export const logout = async (req, res) => {
   const user_id = req.user.user_id;
-
   try {
-    const session = await prisma.session.update({
+    await prisma.users.update({
       where: { user_id },
       data: {
-        updated_at: new Date(),
+        is_active: false,
       },
     });
 

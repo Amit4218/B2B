@@ -59,6 +59,7 @@ price_range                   String?
 city                          String?
 state                         String?
 delivery_location             String?
+is_deleted                    Boolean                     @default(false)
 paymentId                     String?       // later refrence to actual payments model
 created_at                    DateTime        
 updated_at                    DateTime                    @default(now())
@@ -75,6 +76,8 @@ model chatRoom {
   created_at                  DateTime                    @default(now())
   paymentId                   String?       // later refrence to actual payments model
   room_name                   String?
+  is_chatroom_deleted         Boolean                     @default(false)
+  blocked                     Boolean                     @default(false)
 
   messages                    messages[]
   sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id])
@@ -98,7 +101,7 @@ model session{
   created_at                  DateTime
   updated_at                  DateTime                    @default(now())
 
-  user_session users                                      @relation(fields: [user_id], references: [user_id])
+  user_session                users                       @relation(fields: [user_id], references: [user_id])
 }
 
 enum role {

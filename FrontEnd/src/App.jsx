@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import SellerSignUp from "./pages/SellerSignUp";
 import SellerDetailsPage from "./pages/SellerDetailsPage";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           }
         />
       </Routes>
+      <Toaster theme="system" position="top-right" />
     </>
   );
 }

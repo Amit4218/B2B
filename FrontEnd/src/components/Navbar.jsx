@@ -15,12 +15,13 @@ import { logoutUser } from "../api/api-auth";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
 
   const handelLogout = async () => {
-    const status = logoutUser();
+    const status = await logoutUser();
     if (status == 200) {
+      setUser(null);
       setOpen(false);
       navigate("/");
     }
@@ -51,7 +52,12 @@ export default function Navbar() {
         <div className="hidden md:flex md:gap-1">
           {user ? (
             <>
-              <Button onClick={() => handelLogout}>Sign Out</Button>
+              <Button
+                className="hover:cursor-pointer"
+                onClick={() => handelLogout()}
+              >
+                Sign Out
+              </Button>
               <Button variant="outline">
                 <Link to={"/profile"}>Profile</Link>
               </Button>
@@ -105,7 +111,7 @@ export default function Navbar() {
                 </Link>
 
                 <div className="flex flex-col gap-2 mt-4">
-                  {user != null ? (
+                  {user ? (
                     <>
                       <Button onClick={() => handelLogout}>Sign Out</Button>
                       <Button onClick={() => setOpen(false)} variant="outline">

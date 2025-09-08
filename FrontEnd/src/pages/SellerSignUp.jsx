@@ -9,29 +9,86 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser } from "../context/userContext";
-import { registerSeller } from "../api/api-auth";
+import { registerGoogleSeller, registerSeller } from "../api/api-auth";
+import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "sonner";
+import Loader from "../components/Loader";
+import { AuthSchema } from "../formSchemaValidation/AuthSchema";
 
 export default function SellerSignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const { setUser } = useUser();
   const navigate = useNavigate();
 
   const handleSellerRegister = async (e) => {
     e.preventDefault();
-    const data = await registerSeller(email, password);
-    if (data != null && data != undefined) {
-      setUser(data);
+    try {
+      setLoading(true);
+      const result = AuthSchema.safeParse({ email, password });
+
+      if (!result.success) {
+        const fieldErrors = {};
+        result.error.issues.forEach((err) => {
+          fieldErrors[err.path[0]] = err.message;
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+
+      setErrors({});
+
+      const data = await registerSeller(email, password);
+      if (data != null && data != undefined) {
+        setUser(data);
+      }
+      setEmail("");
+      setPassword("");
+      navigate("/seller-details");
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
-    setEmail("");
-    setPassword("");
-    navigate("/seller-details");
   };
+
+  const handelgoogleSellerRegister = async (google_token) => {
+    try {
+      setLoading(true);
+
+      const data = await registerGoogleSeller(google_token);
+
+      if (!data) {
+        toast("Error registering ...");
+        setEmail("");
+        setPassword("");
+        setLoading(false);
+      } else {
+        setUser(data);
+        setEmail("");
+        setPassword("");
+        navigate("/seller-details");
+      }
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -53,6 +110,9 @@ export default function SellerSignUp() {
               placeholder="you@example.com"
             />
           </div>
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -64,6 +124,9 @@ export default function SellerSignUp() {
               placeholder="••••••••"
             />
           </div>
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
 
           <Button
             onClick={handleSellerRegister}
@@ -78,10 +141,17 @@ export default function SellerSignUp() {
             <Separator className="flex-1" />
           </div>
 
-          <Button variant="outline" className="w-full flex items-center gap-2">
-            <FcGoogle className="h-5 w-5" />
-            Sign up with Google
-          </Button>
+          <GoogleLogin
+            onSuccess={(credential) => {
+              handelgoogleSellerRegister(credential.credential);
+            }}
+            onError={(err) => {
+              setLoading(false);
+              toast("Something went wrong!");
+              console.error(err.message);
+            }}
+            width={400}
+          ></GoogleLogin>
         </CardContent>
 
         <CardFooter className="text-sm text-center text-gray-600">

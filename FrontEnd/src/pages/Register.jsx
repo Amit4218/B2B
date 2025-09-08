@@ -9,15 +9,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser } from "../context/userContext";
 import { registerUser } from "../api/api-auth";
+import Loader from "../components/Loader";
+import { GoogleLogin } from "@react-oauth/google";
+import { AuthSchema } from "../formSchemaValidation/AuthSchema";
+import { loginGoogleBuyer } from "../api/api-auth";
+import { toast } from "sonner";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const { setUser } = useUser();
   const navigate = useNavigate();
@@ -25,14 +31,66 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    const data = await registerUser(email, password);
-    if (data != null && data != undefined) {
-      setUser(data);
+    try {
+      setLoading(true);
+      const result = AuthSchema.safeParse({ email, password });
+
+      if (!result.success) {
+        const fieldErrors = {};
+        result.error.issues.forEach((err) => {
+          fieldErrors[err.path[0]] = err.message;
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+
+      setErrors({});
+
+      const data = await registerUser(email, password);
+      if (data != null && data != undefined) {
+        setUser(data);
+      }
+      setEmail("");
+      setPassword("");
+      navigate("/");
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
-    setEmail("");
-    setPassword("");
-    navigate("/");
   };
+
+  const handelGoogleRegister = async (google_token) => {
+    try {
+      setLoading(true);
+
+      const data = await loginGoogleBuyer(google_token);
+
+      if (!data) {
+        toast("Error logging in...");
+        setEmail("");
+        setPassword("");
+        setLoading(false);
+      } else {
+        setUser(data);
+        setEmail("");
+        setPassword("");
+        navigate("/");
+      }
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -54,6 +112,9 @@ export default function Register() {
               placeholder="you@example.com"
             />
           </div>
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -65,6 +126,9 @@ export default function Register() {
               placeholder="••••••••"
             />
           </div>
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
 
           <Button
             onClick={handleRegister}
@@ -83,10 +147,17 @@ export default function Register() {
             <Link to={"/seller-sign-up"}>Create a Seller Account</Link>
           </Button>
 
-          <Button variant="outline" className="w-full flex items-center gap-2">
-            <FcGoogle className="h-5 w-5" />
-            Sign up with Google
-          </Button>
+          <GoogleLogin
+            onSuccess={(credential) => {
+              handelGoogleRegister(credential.credential);
+            }}
+            onError={(err) => {
+              setLoading(false);
+              toast("Something went wrong!");
+              console.error(err.message);
+            }}
+            width={400}
+          ></GoogleLogin>
         </CardContent>
 
         <CardFooter className="text-sm text-center text-gray-600">

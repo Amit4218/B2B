@@ -16,10 +16,13 @@ const loginUser = async (email, password) => {
       }
     );
 
-    const { token } = response.data;
-    localStorage.setItem("token", token);
+    if (response.status === 200) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
 
-    return response.data.User;
+      return response.data.User;
+    }
+    return;
   } catch (error) {
     console.error("Login error:", error);
   }
@@ -38,10 +41,13 @@ const registerUser = async (email, password) => {
       }
     );
 
-    const { token } = response.data;
-    localStorage.setItem("token", token);
+    if (response.status === 200) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
 
-    return response.data.User;
+      return response.data.User;
+    }
+    return;
   } catch (error) {
     console.error("Registration error:", error);
   }
@@ -59,10 +65,13 @@ const registerSeller = async (email, password) => {
       }
     );
 
-    const { token } = response.data;
-    localStorage.setItem("token", token);
+    if (response.status === 200) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
 
-    return response.data.User;
+      return response.data.User;
+    }
+    return;
   } catch (error) {
     console.error("Registration error:", error);
   }
@@ -89,17 +98,103 @@ const UpdateSellerProfile = async (city, state, gst_number, description) => {
   }
 };
 
-const logoutUser = async () => {
-  const response = await axios.put(`${BASE_URL}/user/logout`, {
-    headers: {
-      Authorization: `${localStorage.getItem("token")}`,
-    },
-  });
+const loginGoogleBuyer = async (google_token) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/auth/google-sign-in`,
+      {
+        token: google_token,
+        role: "buyer",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  if (response.status == 200) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    return response.status;
+    if (response.status === 201) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+
+      return response.data.User;
+    }
+  } catch (error) {
+    console.error("Login with google buyer Error: ", error.message);
+  }
+};
+
+const registerGoogleBuyer = async (google_token) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/auth/google-sign-in`,
+      {
+        token: google_token,
+        role: "buyer",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 201) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+
+      return response.data.User;
+    }
+  } catch (error) {
+    console.error("Login with google seller Error: ", error.message);
+  }
+};
+
+const registerGoogleSeller = async (google_token) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/auth/google-sign-in`,
+      {
+        token: google_token,
+        role: "seller",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 201) {
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+
+      return response.data.User;
+    }
+  } catch (error) {
+    console.error("register with google seller Error: ", error.message);
+  }
+};
+
+const logoutUser = async () => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/user/logout`,
+      {},
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.status == 200) {
+      localStorage.removeItem("token");
+      // localStorage.removeItem("user");
+      return response.status;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -109,4 +204,7 @@ export {
   registerSeller,
   UpdateSellerProfile,
   logoutUser,
+  loginGoogleBuyer,
+  registerGoogleBuyer,
+  registerGoogleSeller,
 };

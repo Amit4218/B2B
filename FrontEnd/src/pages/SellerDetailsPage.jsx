@@ -13,6 +13,8 @@ import { useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
 import { UpdateSellerProfile } from "../api/api-auth";
+import Loader from "../components/Loader";
+import { sellerDetailsSchema } from "../formSchemaValidation/sellerDetailsSchema";
 
 export default function SellerDetailsPage() {
   const [details, setDetails] = useState({
@@ -21,6 +23,8 @@ export default function SellerDetailsPage() {
     gst_number: "",
     description: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const { setUser } = useUser();
   const navigate = useNavigate();
@@ -33,11 +37,38 @@ export default function SellerDetailsPage() {
       details.gst_number,
       details.description
     );
+
+    const result = sellerDetailsSchema.safeParse({
+      city: details.city,
+      state: details.state,
+      gst_number: details.gst_number,
+      description: details.description,
+    });
+
+    if (!result.success) {
+      const fieldErrors = {};
+      result.error.issues.forEach((err) => {
+        fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+
     if (data != null && data != undefined) {
       setUser(updatedUser);
       navigate("/dashboard");
     }
   };
+
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -68,6 +99,9 @@ export default function SellerDetailsPage() {
                 }
               />
             </div>
+            {errors.city && (
+              <p className="text-sm text-red-500">{errors.city}</p>
+            )}
 
             {/* State */}
             <div className="space-y-2">
@@ -85,6 +119,10 @@ export default function SellerDetailsPage() {
               />
             </div>
 
+            {errors.state && (
+              <p className="text-sm text-red-500">{errors.state}</p>
+            )}
+
             {/* GST Number */}
             <div className="space-y-2">
               <Label htmlFor="gst">GST Number</Label>
@@ -100,6 +138,9 @@ export default function SellerDetailsPage() {
                 }
               />
             </div>
+            {errors.gst_number && (
+              <p className="text-sm text-red-500">{errors.gst_number}</p>
+            )}
 
             {/* Small Description */}
             <div className="space-y-2">
@@ -116,6 +157,9 @@ export default function SellerDetailsPage() {
                 }
               />
             </div>
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description}</p>
+            )}
           </CardContent>
 
           <CardFooter>

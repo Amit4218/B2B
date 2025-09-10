@@ -190,7 +190,7 @@ const logoutUser = async () => {
 
     if (response.status == 200) {
       localStorage.removeItem("token");
-      // localStorage.removeItem("user");
+      localStorage.removeItem("user");
       return response.status;
     }
   } catch (error) {

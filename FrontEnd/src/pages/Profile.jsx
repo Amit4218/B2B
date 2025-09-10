@@ -1,9 +1,10 @@
 import React from "react";
 import checkUserSession from "../hooks/checkIsUserAuthHook";
 
-function Dashboard() {
+function Profile() {
   checkUserSession();
-  return <div>Dashboard</div>;
+
+  return <div>Profile</div>;
 }
 
-export default Dashboard;
+export default Profile;

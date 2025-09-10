@@ -8,26 +8,30 @@ import Login from "./pages/Login";
 import SellerSignUp from "./pages/SellerSignUp";
 import SellerDetailsPage from "./pages/SellerDetailsPage";
 import { Toaster } from "sonner";
+import BrowseLeads from "./pages/BrowseLeads";
+import Profile from "./pages/Profile";
+import PostLeads from "./pages/PostLeads";
 
 function App() {
   return (
     <>
       <Routes>
-        {/* No Navbar */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/seller-sign-up" element={<SellerSignUp />} />
         <Route path="/seller-details" element={<SellerDetailsPage />} />
 
-        {/* With Navbar */}
         <Route
-          path="*"
+          path="/*"
           element={
-            <div className="max-h-screen overflow-hidden">
+            <div className="max-h-screen">
               <Navbar />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/browse-leads" element={<BrowseLeads />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/post-leads" element={<PostLeads />} />
               </Routes>
             </div>
           }

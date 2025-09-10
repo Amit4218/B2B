@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
@@ -10,7 +10,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 import { logoutUser } from "../api/api-auth";
 
 export default function Navbar() {
@@ -39,8 +38,15 @@ export default function Navbar() {
           <Link to="/" className="text-gray-700 hover:text-gray-900">
             Home
           </Link>
-          <Link to="/browseLeads" className="text-gray-700 hover:text-gray-900">
-            Browse Leads
+          <Link
+            to="/browse-leads"
+            className="text-gray-700 hover:text-gray-900"
+          >
+            Browse-Leads
+          </Link>
+
+          <Link to="/post-leads" className="text-gray-700 hover:text-gray-900">
+            Post-Leads
           </Link>
 
           <Link to="/dashboard" className="text-gray-700 hover:text-gray-900">
@@ -99,7 +105,15 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                   className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
                 >
-                  Browse Leads
+                  Browse-Leads
+                </Link>
+
+                <Link
+                  to="/post-leads"
+                  onClick={() => setOpen(false)}
+                  className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
+                >
+                  Post-Leads
                 </Link>
 
                 <Link

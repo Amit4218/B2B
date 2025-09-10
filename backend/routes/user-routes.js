@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createChatRoom,
+  getAllPostedLeads,
   getChatRooms,
   getUserMessages,
   logout,
@@ -19,6 +20,8 @@ router.get("/get-chatRooms", getChatRooms);
 router.post("/requirements", postRequirements);
 
 router.put("/update-seller", updateSellerDetails);
+
+router.get("/get-leads", getAllPostedLeads);
 
 router.put("/logout", logout);
 

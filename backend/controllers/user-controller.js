@@ -20,12 +20,38 @@ export const getUserMessages = async (req, res) => {
 };
 
 export const postRequirements = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.user.user_id;
+  const {
+    title,
+    categorie,
+    description,
+    imageUrl,
+    quantity,
+    price,
+    city,
+    state,
+    location,
+  } = req.body;
   try {
-    // post requirements
+    const postLead = await prisma.requirements.create({
+      data: {
+        product_title: title,
+        buyer_id: userId,
+        categories: [categorie],
+        description: description,
+        reference_image_url: imageUrl,
+        quantity_needed: quantity,
+        price_range: price,
+        city: city,
+        state: state,
+        delivery_location: location,
+        created_at: new Date(),
+      },
+    });
+
     return res
       .status(200)
-      .json({ message: "Requirements updated successfully" });
+      .json({ message: "Requirements posted successfully" });
   } catch (error) {
     return res
       .status(500)
@@ -163,6 +189,23 @@ export const logout = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Something went wrong", error: error.message });
+  }
+};
+
+export const getAllPostedLeads = async (req, res) => {
+  try {
+    const leads = await prisma.requirements.findMany({
+      where: {
+        is_deleted: false,
+      },
+    });
+
+    return res.status(200).json({
+      postedLeads: leads,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch requirements" });
   }
 };
 

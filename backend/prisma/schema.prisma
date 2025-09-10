@@ -53,7 +53,7 @@ buyer_id                      String
 product_title                 String          
 categories                    String[]                    @default([])
 reference_image_url           String?
-description                   String?
+description                   String? 
 quantity_needed               String?
 price_range                   String?
 city                          String?

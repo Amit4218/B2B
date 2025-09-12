@@ -17,7 +17,7 @@ import { getLeads } from "../api/api-user";
 import checkUserSession from "../hooks/checkIsUserAuthHook";
 
 export default function BrowseLeadsPage() {
-  // checkUserSession();
+  checkUserSession();
 
   const [requirements, setRequirements] = useState([]);
   const [filtered, setFiltered] = useState([]);

@@ -16,7 +16,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [`${process.env.FRONTEND_SOCKET_URL}`],
+    origin: `${process.env.FRONTEND_SOCKET_URL}`,
     // credentials: true,
   },
 });

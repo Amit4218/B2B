@@ -8,7 +8,7 @@ const loginUser = async (email, password) => {
 
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/sign-in`,
+      `${BASE_URL}/api/v1/auth/sign-in`,
       { email, password },
       {
         headers: { "Content-Type": "application/json" },
@@ -33,7 +33,7 @@ const registerUser = async (email, password) => {
 
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/sign-up`,
+      `${BASE_URL}/api/v1/auth/sign-up`,
       { email, password, role: "buyer" },
       {
         headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ const registerSeller = async (email, password) => {
 
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/sign-up`,
+      `${BASE_URL}/api/v1/auth/sign-up`,
       { email, password, role: "seller" },
       {
         headers: { "Content-Type": "application/json" },
@@ -81,7 +81,7 @@ const UpdateSellerProfile = async (city, state, gst_number, description) => {
 
   try {
     const response = await axios.put(
-      `${BASE_URL}/user/update-seller`,
+      `${BASE_URL}/api/v1/user/update-seller`,
       { city, state, gst_number, description },
       {
         headers: {
@@ -100,7 +100,7 @@ const UpdateSellerProfile = async (city, state, gst_number, description) => {
 const loginGoogleBuyer = async (google_token) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/google-sign-in`,
+      `${BASE_URL}/api/v1/auth/google-sign-in`,
       {
         token: google_token,
         role: "buyer",
@@ -126,7 +126,7 @@ const loginGoogleBuyer = async (google_token) => {
 const registerGoogleBuyer = async (google_token) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/google-sign-in`,
+      `${BASE_URL}/api/v1/auth/google-sign-in`,
       {
         token: google_token,
         role: "buyer",
@@ -152,7 +152,7 @@ const registerGoogleBuyer = async (google_token) => {
 const registerGoogleSeller = async (google_token) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/auth/google-sign-in`,
+      `${BASE_URL}/api/v1/auth/google-sign-in`,
       {
         token: google_token,
         role: "seller",
@@ -178,7 +178,7 @@ const registerGoogleSeller = async (google_token) => {
 const logoutUser = async () => {
   try {
     const response = await axios.put(
-      `${BASE_URL}/user/logout`,
+      `${BASE_URL}/api/v1/user/logout`,
       {},
       {
         headers: {

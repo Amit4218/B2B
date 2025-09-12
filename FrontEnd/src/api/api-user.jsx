@@ -5,7 +5,7 @@ const BASE_URL =
 
 export const getLeads = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/user/get-leads`, {
+    const response = await axios.get(`${BASE_URL}/api/v1/user/get-leads`, {
       headers: {
         Authorization: `${localStorage.getItem("token")}`,
       },
@@ -19,7 +19,7 @@ export const getLeads = async () => {
 export const postRequirements = async (data) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/user/requirements`,
+      `${BASE_URL}/api/v1/user/requirements`,
       {
         title: data.product_title,
         categorie: data.category,
@@ -47,7 +47,7 @@ export const postRequirements = async (data) => {
 export const createChatRoom = async (sender_id, reciever_id, room_name) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/user/create-chatRoom`,
+      `${BASE_URL}/api/v1/user/create-chatRoom`,
       {
         sender_id: sender_id,
         receiver_id: reciever_id,
@@ -69,7 +69,7 @@ export const createChatRoom = async (sender_id, reciever_id, room_name) => {
 
 export const getAllChatRooms = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/user/get-chatRooms`, {
+    const response = await axios.get(`${BASE_URL}/api/v1/user/get-chatRooms`, {
       headers: {
         Authorization: `${localStorage.getItem("token")}`,
       },
@@ -84,14 +84,16 @@ export const getAllChatRooms = async () => {
 
 export const fetchOldMessages = async (roomId) => {
   try {
-    const response = await axios.get(`${BASE_URL}/user/messages/${roomId}`, {
-      headers: {
-        Authorization: `${localStorage.getItem("token")}`,
-      },
-    });
+    const response = await axios.get(
+      `${BASE_URL}/api/v1/user/messages/${roomId}`,
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
     return response.data.messages;
-
   } catch (error) {
     console.error("Error Fetching messages", error.message);
   }

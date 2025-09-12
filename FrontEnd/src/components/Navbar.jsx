@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="text-2xl font-bold text-gray-800">B2B</div>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex ml-22 space-x-6">
           <Link to="/" className="text-gray-700 hover:text-gray-900">
             Home
           </Link>
@@ -45,12 +45,19 @@ export default function Navbar() {
             Browse-Leads
           </Link>
 
-          <Link to="/post-leads" className="text-gray-700 hover:text-gray-900">
-            Post-Leads
-          </Link>
+          {user && user.role == "buyer" && (
+            <>
+              <Link
+                to="/post-leads"
+                className="text-gray-700 hover:text-gray-900"
+              >
+                Post-Leads
+              </Link>
+            </>
+          )}
 
-          <Link to="/dashboard" className="text-gray-700 hover:text-gray-900">
-            Dashboard
+          <Link to="/messages" className="text-gray-700 hover:text-gray-900">
+            messages
           </Link>
         </div>
 
@@ -108,13 +115,23 @@ export default function Navbar() {
                   Browse-Leads
                 </Link>
 
-                <Link
-                  to="/post-leads"
-                  onClick={() => setOpen(false)}
-                  className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
-                >
-                  Post-Leads
-                </Link>
+                {user && user.role == "buyer" ? (
+                  <Link
+                    to="/post-leads"
+                    onClick={() => setOpen(false)}
+                    className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
+                  >
+                    Post-Leads
+                  </Link>
+                ) : (
+                  <Link
+                    to="/messages"
+                    onClick={() => setOpen(false)}
+                    className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
+                  >
+                    Messages
+                  </Link>
+                )}
 
                 <Link
                   to="/dashboard"

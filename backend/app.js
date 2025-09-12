@@ -17,7 +17,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173"],
-    credentials: true,
+    // credentials: true,
   },
 });
 
@@ -28,9 +28,9 @@ io.on("connection", (socket) => {
     socket.join(room_id);
   });
 
-  socket.on("message", ({ room_id, message, sender_id }) => {
-    saveMessage(room_id, message, sender_id);
-    socket.to(room_id).emit("message", message);
+  socket.on("message", ({ room_id, content, sender_id }) => {
+    saveMessage(room_id, content, sender_id);
+    io.to(room_id).emit("message", { room_id, content, sender_id });
   });
 
   socket.on("disconnect", () => {

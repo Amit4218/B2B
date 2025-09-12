@@ -15,8 +15,10 @@ import { toast } from "sonner";
 import UploadImg from "../lib/uploadToCloudinary";
 import Loader from "../components/Loader";
 import { postRequirements } from "../api/api-user";
+import checkUserSession from "../hooks/checkIsUserAuthHook";
 
 function PostLeads() {
+  checkUserSession();
   const [form, setForm] = useState({
     product_title: "",
     description: "",

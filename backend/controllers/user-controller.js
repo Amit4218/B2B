@@ -3,15 +3,15 @@ import prisma from "../lib/prisma.js";
 export const getUserMessages = async (req, res) => {
   // Gets the chat messages from a specific chatRoom
 
-  const userId = req.params.id;
+  const roomId = req.params.id;
   try {
     const messages = await prisma.messages.findMany({
-      where: { user_id: userId },
+      where: { room_id: roomId },
     });
 
     return res
       .status(200)
-      .json({ messages, message: "Messages retrieved successfully" });
+      .json({ messages: messages, message: "Messages retrieved successfully" });
   } catch (error) {
     return res
       .status(500)
@@ -63,9 +63,38 @@ export const createChatRoom = async (req, res) => {
   const { sender_id, receiver_id, roomName } = req.body;
 
   try {
+    const roomAlreadyExists = await prisma.chatRoom.findUnique({
+      where: {
+        sender_id: sender_id,
+        receiver_id: receiver_id,
+      },
+    });
+
+    if (roomAlreadyExists) {
+      return res.state(409).json({
+        message: "ChatRoom Already exists",
+      });
+    }
+
+    const senderName = await prisma.users.findUnique({
+      where: {
+        user_id: sender_id,
+      },
+      select: { user_name },
+    });
+
+    const recieverName = await prisma.users.findUnique({
+      where: {
+        user_id: receiver_id,
+      },
+      select: { user_name },
+    });
+
     const chatRoom = await prisma.chatRoom.create({
       data: {
         room_name: roomName,
+        receiver_name: recieverName,
+        sender_name: senderName,
 
         // store foreign keys correctly
         sender: { connect: { user_id: sender_id } },
@@ -91,15 +120,39 @@ export const getChatRooms = async (req, res) => {
   const id = req.user.id;
 
   try {
-    const chatRooms = await prisma.chatRoom.findMany({
-      where: {
-        OR: [{ sender_id: id }, { receiver_id: id }],
+    const chatRoom1 = await prisma.chatRoom.findMany({
+      where: { sender_id: id },
+      select: {
+        room_id: true,
+        sender_id: true,
+        receiver_id: true,
+        room_name: true,
+        sender_name: true,
+        receiver_name: true,
+      },
+    });
+    const chatRoom2 = await prisma.chatRoom.findMany({
+      where: { receiver_id: id },
+      select: {
+        room_id: true,
+        sender_id: true,
+        receiver_id: true,
+        room_name: true,
+        sender_name: true,
+        receiver_name: true,
       },
     });
 
-    return res
-      .status(200)
-      .json({ chatRooms, message: "Chat rooms retrieved successfully" });
+    const chatRooms = [...chatRoom1, ...chatRoom2];
+
+    const uniqueChatRooms = Array.from(
+      new Map(chatRooms.map((room) => [room.room_id, room])).values()
+    );
+
+    return res.status(200).json({
+      chatRooms: uniqueChatRooms,
+      message: "Chat rooms retrieved successfully",
+    });
   } catch (error) {
     return res
       .status(500)
@@ -206,6 +259,75 @@ export const getAllPostedLeads = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch requirements" });
+  }
+};
+
+export const getUserLeads = async (req, res) => {
+  const id = req.user.user_id;
+
+  try {
+    const leads = await prisma.requirements.findMany({
+      where: {
+        buyer_id: id,
+        is_deleted: false,
+      },
+    });
+
+    return res.status(200).json({
+      message: "leads fetched successfull",
+      userLeads: leads,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const userProfileInfo = async (req, res) => {
+  const { state, city } = req.body;
+  const id = req.user.user_id;
+
+  try {
+    const newInfo = await prisma.users.update({
+      where: {
+        user_id: id,
+      },
+      data: {
+        city: city,
+        state: state,
+      },
+    });
+
+    return res.status(200).json({
+      message: "info updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "SOmething went wrong",
+    });
+  }
+};
+
+export const deleteLead = async (req, res) => {
+  const id = req.user.user_id;
+  try {
+    const deletedLead = await prisma.requirements.update({
+      where: {
+        buyer_id: id,
+      },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    return res.status(200).json({
+      message: "lead deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "SOmething went wrong",
+    });
   }
 };
 

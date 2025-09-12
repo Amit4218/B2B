@@ -43,7 +43,7 @@ model seller {
   created_at                  DateTime          
 
   // relation to user
-  user                        users                       @relation(fields: [seller_id], references: [user_id])
+  user                        users                       @relation(fields: [seller_id], references: [user_id], onDelete: Cascade)
 }
 
 model requirements {
@@ -65,7 +65,7 @@ created_at                    DateTime
 updated_at                    DateTime                    @default(now())
 
 // relation to user
-buyer                         users                       @relation(fields: [buyer_id], references: [user_id])
+buyer                         users                       @relation(fields: [buyer_id], references: [user_id], onDelete: Cascade)
 }
 
 
@@ -78,10 +78,12 @@ model chatRoom {
   room_name                   String?
   is_chatroom_deleted         Boolean                     @default(false)
   blocked                     Boolean                     @default(false)
+  sender_name                 String?
+  receiver_name               String?
 
   messages                    messages[]
-  sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id])
-  receiver                    users                       @relation("UserReceiver", fields: [receiver_id], references: [user_id])
+  sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id], onDelete: Cascade)
+  receiver                    users                       @relation("UserReceiver", fields: [receiver_id], references: [user_id], onDelete: Cascade)
 }
 
 model messages {
@@ -91,8 +93,8 @@ model messages {
   content                     String
   timestamp                   DateTime                    @default(now())
 
-  chatRoom                    chatRoom                    @relation(fields: [room_id], references: [room_id])
-  message_sender              users                       @relation("userMessage", fields: [sender_id], references: [user_id])
+  chatRoom                    chatRoom                    @relation(fields: [room_id], references: [room_id], onDelete: Cascade)
+  message_sender              users                       @relation("userMessage", fields: [sender_id], references: [user_id], onDelete: Cascade)
 }
 
 model session{
@@ -101,7 +103,7 @@ model session{
   created_at                  DateTime
   updated_at                  DateTime                    @default(now())
 
-  user_session                users                       @relation(fields: [user_id], references: [user_id])
+  user_session                users                       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
 enum role {

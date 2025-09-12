@@ -1,12 +1,15 @@
 import express from "express";
 import {
   createChatRoom,
+  deleteLead,
   getAllPostedLeads,
   getChatRooms,
+  getUserLeads,
   getUserMessages,
   logout,
   postRequirements,
   updateSellerDetails,
+  userProfileInfo,
 } from "../controllers/user-controller.js";
 
 const router = express.Router();
@@ -23,6 +26,12 @@ router.put("/update-seller", updateSellerDetails);
 
 router.get("/get-leads", getAllPostedLeads);
 
+router.get("/all-posted-leads", getUserLeads);
+
+router.put("/update-info", userProfileInfo);
+
+router.put("/delete-lead", deleteLead);
+  
 router.put("/logout", logout);
 
 export default router;

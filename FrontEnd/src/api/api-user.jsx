@@ -43,3 +43,56 @@ export const postRequirements = async (data) => {
     console.error("Error in posting requirements", error.message);
   }
 };
+
+export const createChatRoom = async (sender_id, reciever_id, room_name) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/user/create-chatRoom`,
+      {
+        sender_id: sender_id,
+        receiver_id: reciever_id,
+        roomName: room_name,
+      },
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    const roomId = response.data.room_id;
+    localStorage.setItem("roomId", roomId);
+  } catch (error) {
+    console.error("Error creating room", error.message);
+  }
+};
+
+export const getAllChatRooms = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/user/get-chatRooms`, {
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+      },
+    });
+
+    console.log(response.data);
+    return response.data.chatRooms;
+  } catch (error) {
+    console.error("Error getting all chatRooms", error.message);
+  }
+};
+
+export const fetchOldMessages = async (roomId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/user/messages/${roomId}`, {
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+      },
+    });
+
+    return response.data.messages;
+
+  } catch (error) {
+    console.error("Error Fetching messages", error.message);
+  }
+};

@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 import BrowseLeads from "./pages/BrowseLeads";
 import Profile from "./pages/Profile";
 import PostLeads from "./pages/PostLeads";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/browse-leads" element={<BrowseLeads />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/post-leads" element={<PostLeads />} />
+                <Route path="/messages" element={<Messages />} />
               </Routes>
             </div>
           }

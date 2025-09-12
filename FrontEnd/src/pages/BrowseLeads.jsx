@@ -213,9 +213,9 @@ export default function BrowseLeadsPage() {
             </div>
           )}
 
-          <div className="mt-12 flex justify-center">
+          {/* <div className="mt-12 flex justify-center">
             <Button variant="outline">Load More</Button>
-          </div>
+          </div> */}
         </main>
       </div>
     </div>

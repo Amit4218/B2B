@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageSquare, Shield, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUser } from "../context/userContext";
 
 function Home() {
+  const { user } = useUser();
+
   return (
     <section className="bg-slate-700 text-primary-foreground ">
       <div className="max-w-7xl my-auto mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
@@ -20,7 +23,7 @@ function Home() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
           <Button variant="secondary" size="lg" asChild>
             <Link
-              to="/post-requirement"
+              to={user ? "/browse-leads" : "/login"}
               className="flex items-center space-x-2"
             >
               <span>Get Started</span>

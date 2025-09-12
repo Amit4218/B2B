@@ -42,7 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [`${process.env.FRONTEND_SOCKET_URL}`],
+    origin: `${process.env.FRONTEND_SOCKET_URL}`,
     credentials: true,
   })
 );

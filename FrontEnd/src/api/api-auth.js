@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "hello";
+
+console.log(BASE_URL);
+
 
 const loginUser = async (email, password) => {
   // request to login buyer/seller

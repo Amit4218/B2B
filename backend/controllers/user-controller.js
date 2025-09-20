@@ -65,38 +65,34 @@ export const createChatRoom = async (req, res) => {
   try {
     const roomAlreadyExists = await prisma.chatRoom.findUnique({
       where: {
-        sender_id: sender_id,
-        receiver_id: receiver_id,
+        sender_id_receiver_id: {
+          sender_id,
+          receiver_id,
+        },
       },
     });
 
     if (roomAlreadyExists) {
-      return res.state(409).json({
+      return res.status(409).json({
         message: "ChatRoom Already exists",
       });
     }
 
-    const senderName = await prisma.users.findUnique({
-      where: {
-        user_id: sender_id,
-      },
-      select: { user_name },
+    const sender = await prisma.users.findUnique({
+      where: { user_id: sender_id },
+      select: { user_name: true },
     });
 
-    const recieverName = await prisma.users.findUnique({
-      where: {
-        user_id: receiver_id,
-      },
-      select: { user_name },
+    const receiver = await prisma.users.findUnique({
+      where: { user_id: receiver_id },
+      select: { user_name: true },
     });
 
     const chatRoom = await prisma.chatRoom.create({
       data: {
         room_name: roomName,
-        receiver_name: recieverName,
-        sender_name: senderName,
-
-        // store foreign keys correctly
+        sender_name: sender?.user_name,
+        receiver_name: receiver?.user_name,
         sender: { connect: { user_id: sender_id } },
         receiver: { connect: { user_id: receiver_id } },
       },
@@ -117,11 +113,14 @@ export const createChatRoom = async (req, res) => {
 export const getChatRooms = async (req, res) => {
   // gets all the chat rooms for a user
 
-  const id = req.user.id;
+  const id = req.user.user_id;
+  const newId = String(id);
 
   try {
-    const chatRoom1 = await prisma.chatRoom.findMany({
-      where: { sender_id: id },
+    const chatrooms = await prisma.chatRoom.findMany({
+      where: {
+        OR: [{ sender_id: newId }, { receiver_id: newId }],
+      },
       select: {
         room_id: true,
         sender_id: true,
@@ -131,26 +130,9 @@ export const getChatRooms = async (req, res) => {
         receiver_name: true,
       },
     });
-    const chatRoom2 = await prisma.chatRoom.findMany({
-      where: { receiver_id: id },
-      select: {
-        room_id: true,
-        sender_id: true,
-        receiver_id: true,
-        room_name: true,
-        sender_name: true,
-        receiver_name: true,
-      },
-    });
-
-    const chatRooms = [...chatRoom1, ...chatRoom2];
-
-    const uniqueChatRooms = Array.from(
-      new Map(chatRooms.map((room) => [room.room_id, room])).values()
-    );
 
     return res.status(200).json({
-      chatRooms: uniqueChatRooms,
+      chatRooms: chatrooms,
       message: "Chat rooms retrieved successfully",
     });
   } catch (error) {

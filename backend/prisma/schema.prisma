@@ -52,7 +52,7 @@ requirement_id                String      @id             @default(cuid())
 buyer_id                      String          
 product_title                 String          
 categories                    String[]                    @default([])
-reference_image_url           String?
+reference_image_url           String[]
 description                   String? 
 quantity_needed               String?
 price_range                   String?
@@ -80,10 +80,13 @@ model chatRoom {
   blocked                     Boolean                     @default(false)
   sender_name                 String?
   receiver_name               String?
+  sender_profile_image        String?
+  receiver_profile_image      String?
 
   messages                    messages[]
   sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id], onDelete: Cascade)
   receiver                    users                       @relation("UserReceiver", fields: [receiver_id], references: [user_id], onDelete: Cascade)
+                                                          @@unique([sender_id, receiver_id])
 }
 
 model messages {

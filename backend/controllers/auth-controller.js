@@ -214,3 +214,21 @@ export const googleSignIn = async (req, res) => {
     });
   }
 };
+
+export const updateExpiredUserSession = async (req, res) => {
+  const user_id = req.body;
+  try {
+    await prisma.session.update({
+      where: {
+        id: user_id,
+      },
+      data: {
+        updated_at: new Date(),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error updating expired user session",
+    });
+  }
+};

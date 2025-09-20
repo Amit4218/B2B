@@ -9,21 +9,28 @@ function Messages() {
   const [chatRooms, setChatRooms] = useState([]);
   const [activeRoom, setActiveRoom] = useState(null);
   const { user } = useUser();
+  const roomInLocalStorage = localStorage.getItem("roomId");
 
   useEffect(() => {
     const callChatRoom = async () => {
       const rooms = await getAllChatRooms();
+      if (rooms === "TokenExpiredError") {
+        navigate("/login");
+        toast("Token expired please login again..");
+      }
       setChatRooms(rooms);
+      if (roomInLocalStorage != null) {
+        setActiveRoom(roomInLocalStorage);
+      }
     };
     callChatRoom();
   }, []);
 
   const handleOpenChat = (room) => {
     localStorage.setItem("roomId", room.room_id);
+    localStorage.setItem("roomDetails", JSON.stringify(room));
     setActiveRoom(room.room_id);
   };
-
-  console.log(chatRooms);
 
   return (
     <div className="flex flex-col md:flex-row h-[90vh]">
@@ -38,11 +45,18 @@ function Messages() {
                 className="p-3 bg-white rounded-lg shadow hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleOpenChat(room)}
               >
-                <h3 className="text-sm">
-                  {user.user_id === room.sender_id
-                    ? room.receiver_name
-                    : room.sender_name}
-                </h3>
+                <div className="flex items-center  gap-5">
+                  <img
+                    src={user.avatar}
+                    alt=""
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <h3 className="text-xs">
+                    {user.user_id === room.sender_id
+                      ? room.receiver_name
+                      : room.sender_name}
+                  </h3>
+                </div>
               </div>
             ))}
           </div>

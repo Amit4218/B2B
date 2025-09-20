@@ -41,7 +41,7 @@ export default function RequirementCard({ requirement }) {
         <img
           src={requirement.reference_image_url}
           alt={requirement.product_title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover text-center "
         />
         <CardTitle className="text-center text-lg font-semibold py-3 bg-muted">
           {requirement.product_title}

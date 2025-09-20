@@ -4,7 +4,7 @@ export const requirementSchema = z.object({
   product_title: z.string().min(1, "Product title is required"),
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
-  image: z.string().url("Image upload failed, please try again"),
+  image: z.url("Image upload failed, please try again"),
   quantity_needed: z.coerce
     .number()
     .int()

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { fetchOldMessages } from "../api/api-user";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { useUser } from "../context/userContext";
 function ChatMain() {
   const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
   const roomId = localStorage.getItem("roomId");
+  const roomDetails = JSON.parse(localStorage.getItem("roomDetails"));
   const { user } = useUser();
   const userId = user.user_id;
 
@@ -14,27 +15,27 @@ function ChatMain() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
 
+  const messagesEndRef = useRef(null);
+
+  // ✅ auto-scroll to bottom whenever messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   useEffect(() => {
     if (!roomId) return;
 
-    // connect to backend
     const newSocket = io(`${SOCKET_URL}`);
     setSocket(newSocket);
 
-    // join private room
     newSocket.emit("joinRoom", roomId);
-
-    // fetch old messages
 
     const getMessages = async () => {
       const chatmessage = await fetchOldMessages(roomId);
-      console.log(chatmessage);
-
       setMessages(chatmessage);
     };
     getMessages();
 
-    // listen for new messages from socket
     newSocket.on("message", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
@@ -58,30 +59,57 @@ function ChatMain() {
   };
 
   return (
-    <div className=" ml-1  w-[98%] ">
+    <div className="ml-1 w-[98%] flex flex-col">
+      {/* Messages */}
       <div className="h-[79vh] overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, index) => (
-          <div
-            key={msg._id || index}
-            className={`flex flex-col space-y-1 ${
-              msg.sender_id === userId ? "items-end" : "items-start"
-            }`}
-          >
+        {messages.map((msg, index) => {
+          const isSender = msg.sender_id === userId;
+          const username = isSender
+            ? user.user_name
+            : roomDetails.sender_id === userId
+            ? roomDetails.receiver_name
+            : roomDetails.sender_name;
+
+          return (
             <div
-              className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                msg.sender_id === userId
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+              key={msg._id || index}
+              className={`flex items-end gap-2 ${
+                isSender ? "justify-end" : "justify-start"
               }`}
             >
-              <p className="text-sm font-semibold">
-                {/* {msg.sender_id === userId ? "" : msg.sender_name} */}
-              </p>
-              <p className="text-sm">{msg.content}</p>
+              {/* Profile image */}
+              {!isSender && (
+                <img
+                  src={user.avatar}
+                  alt="profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              )}
+
+              <div
+                className={`max-w-[75%] rounded-lg px-3 py-2 ${
+                  isSender ? "bg-primary text-primary-foreground" : "bg-muted"
+                }`}
+              >
+                <p className="text-xs font-semibold pb-1">{username}</p>
+                <p className="text-sm break-words">{msg.content}</p>
+              </div>
+
+              {isSender && (
+                <img
+                  src={user.avatar}
+                  alt="profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
+        {/* dummy div to scroll into view */}
+        <div ref={messagesEndRef} />
       </div>
+
+      {/* Input */}
       <form
         onSubmit={handleSendMessage}
         className="flex items-center gap-2 border-t p-4"

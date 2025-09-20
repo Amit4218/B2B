@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,11 +19,15 @@ import checkUserSession from "../hooks/checkIsUserAuthHook";
 
 function PostLeads() {
   checkUserSession();
+
+  const [imageUrls, setImageUrls] = useState([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const [form, setForm] = useState({
     product_title: "",
     description: "",
     category: "",
-    image: null,
+    image: imageUrls,
     quantity_needed: "",
     city: "",
     state: "",
@@ -34,6 +38,25 @@ function PostLeads() {
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const upload = async (image) => {
+      if (!image) return;
+      setIsUploadingImage(true);
+
+      const url = await UploadImg(image);
+      if (url) {
+        setImageUrls((prev) => [...prev, url]);
+        toast("Refrence image uploaded successfully...");
+        fileInputRef.current.value = null;
+        setIsUploadingImage(false);
+      } else {
+        toast("Refrence image was not uploaded!");
+        setIsUploadingImage(false);
+      }
+    };
+    upload(image);
+  }, [image]);
 
   const categories = [
     ["Apparel", "Textiles", "Organic"],
@@ -60,20 +83,19 @@ function PostLeads() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!image) return toast("Please upload a reference image..");
-
     try {
       setLoading(true);
-      const url = await UploadImg(image);
-      handleChange("image", url);
-
       const data = await postRequirements(form);
+
+      if (data === "TokenExpiredError") {
+        navigate("/login");
+        toast("Token expired please login again..");
+      }
 
       toast(data == 200 ? "Requirement submitted!" : "Subbmission went wrong");
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      toast("Image upload failed. Try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -151,6 +173,7 @@ function PostLeads() {
               accept="image/*"
               ref={fileInputRef}
               onChange={handleFileChange}
+              disabled={isUploadingImage}
             />
           </div>
 

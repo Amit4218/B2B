@@ -6,8 +6,11 @@ const checkUserSession = async () => {
   const { user } = useUser();
   const navigate = useNavigate();
 
+  const User = user || localStorage.getItem("user");
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    if (!user) {
+    if (!User || !token) {
       navigate("/login");
     }
   }, [user]);

@@ -15,6 +15,8 @@ import { ListFilter, Search } from "lucide-react";
 import RequirementCard from "../components/RequirementCards";
 import { getLeads } from "../api/api-user";
 import checkUserSession from "../hooks/checkIsUserAuthHook";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function BrowseLeadsPage() {
   checkUserSession();
@@ -26,6 +28,7 @@ export default function BrowseLeadsPage() {
   const [city, setCity] = useState("all");
   const [priceRange, setPriceRange] = useState("");
   const [sort, setSort] = useState("newest");
+  const navigate = useNavigate();
 
   const allCategories = [
     ...new Set(requirements.flatMap((r) => r.categories || [])),
@@ -87,6 +90,10 @@ export default function BrowseLeadsPage() {
   useEffect(() => {
     const getAllLeads = async () => {
       const leads = await getLeads();
+      if (leads === "TokenExpiredError") {
+        navigate("/login");
+        toast("Token expired please login again..");
+      }
       setRequirements(leads);
     };
     getAllLeads();

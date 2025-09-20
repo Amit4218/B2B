@@ -108,7 +108,7 @@ export default function Navbar() {
                   Home
                 </Link>
                 <Link
-                  to="/browseLeads"
+                  to="/browse-leads"
                   onClick={() => setOpen(false)}
                   className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
                 >
@@ -133,13 +133,13 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <Link
+                {/* <Link
                   to="/dashboard"
                   onClick={() => setOpen(false)}
                   className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
                 >
                   Dashboard
-                </Link>
+                </Link> */}
 
                 <div className="flex flex-col gap-2 mt-4">
                   {user ? (

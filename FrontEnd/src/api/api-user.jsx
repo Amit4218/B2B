@@ -12,7 +12,13 @@ export const getLeads = async () => {
     });
     return response.data.postedLeads;
   } catch (error) {
-    console.error("error fetching leads");
+    console.error("error fetching leads", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
   }
 };
 
@@ -41,6 +47,12 @@ export const postRequirements = async (data) => {
     return response.status;
   } catch (error) {
     console.error("Error in posting requirements", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
   }
 };
 
@@ -64,6 +76,12 @@ export const createChatRoom = async (sender_id, reciever_id, room_name) => {
     localStorage.setItem("roomId", roomId);
   } catch (error) {
     console.error("Error creating room", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
   }
 };
 
@@ -75,10 +93,15 @@ export const getAllChatRooms = async () => {
       },
     });
 
-    console.log(response.data);
     return response.data.chatRooms;
   } catch (error) {
     console.error("Error getting all chatRooms", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
   }
 };
 
@@ -96,5 +119,11 @@ export const fetchOldMessages = async (roomId) => {
     return response.data.messages;
   } catch (error) {
     console.error("Error Fetching messages", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
   }
 };

@@ -32,18 +32,20 @@ export const postRequirements = async (req, res) => {
     state,
     location,
   } = req.body;
+
   try {
     const postLead = await prisma.requirements.create({
       data: {
         product_title: title,
         buyer_id: userId,
         categories: [categorie],
-        description: description,
-        reference_image_url: imageUrl,
+        description,
+        reference_image_url:
+          Array.isArray(imageUrl) && imageUrl.length > 0 ? imageUrl : [],
         quantity_needed: quantity,
         price_range: price,
-        city: city,
-        state: state,
+        city,
+        state,
         delivery_location: location,
         created_at: new Date(),
       },
@@ -51,8 +53,9 @@ export const postRequirements = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Requirements posted successfully" });
+      .json({ message: "Requirements posted successfully", data: postLead });
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ message: "Something went wrong", error: error.message });

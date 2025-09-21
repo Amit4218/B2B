@@ -47,7 +47,7 @@ export const postRequirements = async (data) => {
     return response.status;
   } catch (error) {
     console.error("Error in posting requirements", error.message);
-    if (error.response.data.error === "TokenExpiredError") {
+    if (error.response?.data?.error === "TokenExpiredError") {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       localStorage.removeItem("roomId");

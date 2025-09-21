@@ -12,6 +12,7 @@ import BrowseLeads from "./pages/BrowseLeads";
 import Profile from "./pages/Profile";
 import PostLeads from "./pages/PostLeads";
 import Messages from "./pages/Messages";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/post-leads" element={<PostLeads />} />
                 <Route path="/messages" element={<Messages />} />
               </Routes>
+              {/* <Footer /> */}
             </div>
           }
         />

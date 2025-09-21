@@ -15,110 +15,133 @@ import { toast } from "sonner";
 import UploadImg from "../lib/uploadToCloudinary";
 import Loader from "../components/Loader";
 import { postRequirements } from "../api/api-user";
-import checkUserSession from "../hooks/checkIsUserAuthHook";
+import useCheckUserSession from "../hooks/checkIsUserAuthHook";
 
 function PostLeads() {
-  checkUserSession();
+  useCheckUserSession();
 
-  const [imageUrls, setImageUrls] = useState([]);
+  const fileInputRef = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [form, setForm] = useState({
     product_title: "",
     description: "",
     category: "",
-    image: imageUrls,
+    image: [],
     quantity_needed: "",
+    price_range: "",
     city: "",
     state: "",
-    price_range: "",
     delivery_location: "",
   });
 
-  const [image, setImage] = useState(null);
-  const fileInputRef = useRef(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const upload = async (image) => {
-      if (!image) return;
-      setIsUploadingImage(true);
-
-      const url = await UploadImg(image);
-      if (url) {
-        setImageUrls((prev) => [...prev, url]);
-        toast("Refrence image uploaded successfully...");
-        fileInputRef.current.value = null;
-        setIsUploadingImage(false);
-      } else {
-        toast("Refrence image was not uploaded!");
-        setIsUploadingImage(false);
-      }
-    };
-    upload(image);
-  }, [image]);
-
   const categories = [
-    ["Apparel", "Textiles", "Organic"],
-    ["Industrial Supplies", "Metals", "Construction"],
-    ["Agriculture", "Spices", "Food & Beverage"],
-    ["Corporate Gifting", "Customized Products", "Events"],
-    ["Leather", "Fashion", "Raw Materials"],
-    ["Recycled Materials", "Plastics", "Manufacturing"],
-    ["Machinery", "Food & Beverage", "Cafe Supplies"],
-    ["Cosmetics", "Ayurveda", "Herbs"],
+    "Apparel",
+    "Textiles",
+    "Organic",
+    "Industrial Supplies",
+    "Metals",
+    "Construction",
+    "Agriculture",
+    "Spices",
+    "Food & Beverage",
+    "Corporate Gifting",
+    "Customized Products",
+    "Events",
+    "Leather",
+    "Fashion",
+    "Raw Materials",
+    "Recycled Materials",
+    "Plastics",
+    "Manufacturing",
+    "Machinery",
+    "Cafe Supplies",
+    "Cosmetics",
+    "Ayurveda",
+    "Herbs",
+    "electronics"
   ];
-
-  const allCategories = [...new Set(categories.flat())];
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e) => {
+  // Upload image when selected
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    setImage(file);
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    const url = await UploadImg(file);
+
+    if (url) {
+      setForm((prev) => ({ ...prev, image: [...prev.image, url] }));
+      toast("Reference image uploaded successfully");
+      fileInputRef.current.value = null;
+    } else {
+      toast("Image upload failed");
+    }
+    setIsUploadingImage(false);
+  };
+
+  // Remove image
+  const handleRemoveImage = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      image: prev.image.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      setLoading(true);
-      const data = await postRequirements(form);
+      const status = await postRequirements(form);
 
-      if (data === "TokenExpiredError") {
+      if (status === "TokenExpiredError") {
         navigate("/login");
-        toast("Token expired please login again..");
+        toast("Token expired, please login again");
+        return;
       }
 
-      toast(data == 200 ? "Requirement submitted!" : "Subbmission went wrong");
-      setLoading(false);
+      if (status === 200) {
+        toast("Requirement submitted successfully!");
+        // Reset form
+        setForm({
+          product_title: "",
+          description: "",
+          category: "",
+          image: [],
+          quantity_needed: "",
+          price_range: "",
+          city: "",
+          state: "",
+          delivery_location: "",
+        });
+      } else {
+        toast("Submission failed");
+      }
     } catch (err) {
-      setLoading(false);
       console.error(err);
+      toast("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Loader />
-      </>
-    );
-  }
+  if (loading) return <Loader />;
 
   return (
-    <Card className="max-w-2xl mx-auto shadow-md rounded-xl border mt-10">
+    <Card className="max-w-2xl mx-auto shadow-md rounded-xl border mt-10 mb-10">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold">
           Create New Requirement
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Product Title */}
           <div className="space-y-2">
             <Label htmlFor="product_title">Product Title</Label>
@@ -155,7 +178,7 @@ function PostLeads() {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {allCategories.map((cat) => (
+                {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
                   </SelectItem>
@@ -164,9 +187,9 @@ function PostLeads() {
             </Select>
           </div>
 
-          {/* Reference Image */}
+          {/* Reference Images */}
           <div className="space-y-2">
-            <Label htmlFor="image">Reference Image</Label>
+            <Label htmlFor="image">Reference Images</Label>
             <Input
               id="image"
               type="file"
@@ -175,9 +198,29 @@ function PostLeads() {
               onChange={handleFileChange}
               disabled={isUploadingImage}
             />
+
+            {/* Preview uploaded images */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {form.image.map((url, index) => (
+                <div key={index} className="relative w-20 h-20">
+                  <img
+                    src={url}
+                    alt={`Uploaded ${index}`}
+                    className="w-full h-full object-cover rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Quantity Needed */}
+          {/* Quantity */}
           <div className="space-y-2">
             <Label htmlFor="quantity_needed">Quantity Needed</Label>
             <Input
@@ -185,21 +228,20 @@ function PostLeads() {
               type="number"
               value={form.quantity_needed}
               onChange={(e) => handleChange("quantity_needed", e.target.value)}
-              placeholder="Enter required quantity"
+              placeholder="Enter quantity needed"
               required
             />
           </div>
 
-          {/* price Range */}
-
+          {/* Price */}
           <div className="space-y-2">
-            <Label htmlFor="quantity_needed">Price Range (per item )</Label>
+            <Label htmlFor="price_range">Price Range (per item)</Label>
             <Input
-              id="quantity_needed"
+              id="price_range"
               type="number"
               value={form.price_range}
               onChange={(e) => handleChange("price_range", e.target.value)}
-              placeholder="Enter required quantity"
+              placeholder="Enter price range"
               required
             />
           </div>
@@ -242,17 +284,10 @@ function PostLeads() {
             />
           </div>
 
-          <div className="pt-4">
-            <Button
-              onClick={(e) => {
-                handleSubmit(e);
-              }}
-              className="w-full"
-            >
-              Submit Requirement
-            </Button>
-          </div>
-        </div>
+          <Button type="submit" className="w-full">
+            {isUploadingImage ? "Uploading Image..." : "Submit Requirement"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

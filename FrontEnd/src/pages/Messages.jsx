@@ -40,26 +40,30 @@ function Messages() {
         <div className="p-4">
           <h2 className="text-xl font-semibold mb-4">Chat Rooms</h2>
           <div className="space-y-2">
-            {chatRooms.map((room) => (
-              <div
-                key={room.room_id}
-                className="p-3 bg-white rounded-lg shadow hover:bg-gray-50 cursor-pointer"
-                onClick={() => handleOpenChat(room)}
-              >
-                <div className="flex items-center  gap-5">
-                  <img
-                    src={user.avatar}
-                    alt=""
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <h3 className="text-xs">
-                    {user.user_id === room.sender_id
-                      ? room.receiver_name
-                      : room.sender_name}
-                  </h3>
+            {chatRooms.length > 0 ? (
+              chatRooms.map((room) => (
+                <div
+                  key={room.room_id}
+                  className="p-3 bg-white rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleOpenChat(room)}
+                >
+                  <div className="flex items-center gap-5">
+                    <img
+                      src={user.avatar}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <h3 className="text-xs">
+                      {user.user_id === room.sender_id
+                        ? room.receiver_name
+                        : room.sender_name}
+                    </h3>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p>No chats found ! Try posting a lead... </p>
+            )}
           </div>
         </div>
       </div>
@@ -68,7 +72,9 @@ function Messages() {
         {activeRoom ? (
           <ChatMain />
         ) : (
-          <div className="p-4">Select a chat to start messaging</div>
+          <div className="p-4">
+            {chatRooms.length > 0 ? "Select a chat to start messaging" : ""}{" "}
+          </div>
         )}
       </div>
     </div>

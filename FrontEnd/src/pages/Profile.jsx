@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "../context/userContext";
 
 export default function Profile() {
-  // const user = localStorage.getItem("user")
   const { user } = useUser();
 
   return (
@@ -22,6 +21,7 @@ export default function Profile() {
                   {user.user_name}
                 </CardTitle>
                 <p className="text-gray-500 text-sm">{user.email}</p>
+                <p className="text-gray-500 text-sm">Role: {user.role}</p>
               </div>
             </CardHeader>
             <CardContent className="mt-6 space-y-3 text-center">

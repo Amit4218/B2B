@@ -17,7 +17,7 @@ function ChatMain() {
 
   const messagesEndRef = useRef(null);
 
-  // ✅ auto-scroll to bottom whenever messages change
+  //  auto-scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);

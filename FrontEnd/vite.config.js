@@ -12,4 +12,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    target: "es2019", // flatMap supported in all target browsers
+  },
 });

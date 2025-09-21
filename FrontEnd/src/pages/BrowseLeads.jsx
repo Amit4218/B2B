@@ -29,15 +29,16 @@ export default function BrowseLeadsPage() {
   const [sort, setSort] = useState("newest");
   const navigate = useNavigate();
 
+  // Defensive: ensure requirements is always an array
   const allCategories = [
-    ...new Set(requirements.flatMap((r) => r.categories || [])),
+    ...new Set((requirements || []).flatMap((r) => r.categories || [])),
   ];
   const allCities = [
-    ...new Set(requirements.map((r) => r.city).filter(Boolean)),
+    ...new Set((requirements || []).map((r) => r.city).filter(Boolean)),
   ];
 
   const handleApplyFilters = () => {
-    let temp = [...requirements];
+    let temp = [...(requirements || [])];
 
     if (keyword) {
       temp = temp.filter(
@@ -62,26 +63,18 @@ export default function BrowseLeadsPage() {
       if (!isNaN(min) && !isNaN(max)) {
         temp = temp.filter((r) => {
           if (!r.price_range) return false;
-          const leadPrice = parseInt(
-            r.price_range.replace(/[^0-9-]/g, "").split("-")[0],
-            10
-          );
-          return leadPrice >= min && leadPrice <= max;
+          const leadMin = r.price_range.replace(/[^0-9-]/g, "").split("-")[0];
+          const leadPrice = parseInt(leadMin, 10);
+          return !isNaN(leadPrice) && leadPrice >= min && leadPrice <= max;
         });
       }
     }
 
-    if (sort === "oldest") {
-      temp = temp.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
-    } else {
-      temp = temp.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    }
+    temp = [...temp].sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sort === "oldest" ? dateA - dateB : dateB - dateA;
+    });
 
     setFiltered(temp);
   };
@@ -91,13 +84,13 @@ export default function BrowseLeadsPage() {
       const leads = await getLeads();
       if (leads === "TokenExpiredError") {
         navigate("/login");
-        toast("Token expired please login again..");
+        toast("Token expired, please login again.");
       } else {
-        setRequirements(leads);
+        setRequirements(Array.isArray(leads) ? leads : []);
       }
     };
     getAllLeads();
-  }, []);
+  }, [navigate]);
 
   // Auto-apply filters whenever requirements or filter states change
   useEffect(() => {
@@ -219,10 +212,6 @@ export default function BrowseLeadsPage() {
               </p>
             </div>
           )}
-
-          {/* <div className="mt-12 flex justify-center">
-            <Button variant="outline">Load More</Button>
-          </div> */}
         </main>
       </div>
     </div>

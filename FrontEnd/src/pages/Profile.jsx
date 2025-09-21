@@ -7,8 +7,6 @@ export default function Profile() {
   // const user = localStorage.getItem("user")
   const { user } = useUser();
 
-  console.log(user);
-
   return (
     <>
       <div className="flex justify-center items-center">
@@ -32,7 +30,7 @@ export default function Profile() {
               </p>
               <p className="text-gray-700">
                 <span className="font-medium">State:</span>{" "}
-                {user.state || "N/A"} 
+                {user.state || "N/A"}
               </p>
             </CardContent>
           </Card>

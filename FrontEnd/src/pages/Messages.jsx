@@ -17,8 +17,9 @@ function Messages() {
       if (rooms === "TokenExpiredError") {
         navigate("/login");
         toast("Token expired please login again..");
+      } else {
+        setChatRooms(rooms);
       }
-      setChatRooms(rooms);
       if (roomInLocalStorage != null) {
         setActiveRoom(roomInLocalStorage);
       }

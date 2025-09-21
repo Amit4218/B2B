@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,12 +13,12 @@ import { ListFilter, Search } from "lucide-react";
 
 import RequirementCard from "../components/RequirementCards";
 import { getLeads } from "../api/api-user";
-import checkUserSession from "../hooks/checkIsUserAuthHook";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import useCheckUserSession from "../hooks/checkIsUserAuthHook";
 
 export default function BrowseLeadsPage() {
-  checkUserSession();
+  useCheckUserSession();
 
   const [requirements, setRequirements] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -93,8 +92,9 @@ export default function BrowseLeadsPage() {
       if (leads === "TokenExpiredError") {
         navigate("/login");
         toast("Token expired please login again..");
+      } else {
+        setRequirements(leads);
       }
-      setRequirements(leads);
     };
     getAllLeads();
   }, []);

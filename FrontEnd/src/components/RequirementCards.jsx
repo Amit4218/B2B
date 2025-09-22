@@ -20,7 +20,7 @@ export default function RequirementCard({ requirement }) {
       const data = await createChatRoom(sId, rId, rName);
       navigate("/messages");
       if (data === "ChatRoom Already exists") {
-        navigate("/messsges");
+        navigate("/messages");
       }
     } catch (error) {
       toast("Something went wrong!");

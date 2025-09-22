@@ -94,6 +94,7 @@ export const signUp = async (req, res) => {
     const newUser = await prisma.users.create({
       data: {
         user_name: uniqueUserName,
+        avatar: `https://placehold.co/400?text=${uniqueUserName}&font=roboto`,
         role,
         email,
         password: hashedPassword,
@@ -166,6 +167,7 @@ export const googleSignIn = async (req, res) => {
       user = await prisma.users.create({
         data: {
           user_name: uniqueUserName,
+          avatar: `https://placehold.co/400?text=${uniqueUserName}&font=roboto`,
           email: email,
           google_id: id,
           role: role,

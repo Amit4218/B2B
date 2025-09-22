@@ -83,12 +83,12 @@ export const createChatRoom = async (req, res) => {
 
     const sender = await prisma.users.findUnique({
       where: { user_id: sender_id },
-      select: { user_name: true },
+      select: { user_name: true, avatar: true },
     });
 
     const receiver = await prisma.users.findUnique({
       where: { user_id: receiver_id },
-      select: { user_name: true },
+      select: { user_name: true, avatar: true },
     });
 
     const chatRoom = await prisma.chatRoom.create({
@@ -96,6 +96,8 @@ export const createChatRoom = async (req, res) => {
         room_name: roomName,
         sender_name: sender?.user_name,
         receiver_name: receiver?.user_name,
+        sender_profile_image: sender?.avatar,
+        receiver_profile_image: receiver?.avatar,
         sender: { connect: { user_id: sender_id } },
         receiver: { connect: { user_id: receiver_id } },
       },
@@ -131,6 +133,8 @@ export const getChatRooms = async (req, res) => {
         room_name: true,
         sender_name: true,
         receiver_name: true,
+        sender_profile_image: true,
+        receiver_profile_image: true,
       },
     });
 

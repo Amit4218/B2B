@@ -80,7 +80,7 @@ function ChatMain() {
               {/* Profile image */}
               {!isSender && (
                 <img
-                  src={user.avatar}
+                  src={roomDetails.sender_profile_image}
                   alt="profile"
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -97,7 +97,7 @@ function ChatMain() {
 
               {isSender && (
                 <img
-                  src={user.avatar}
+                  src={roomDetails.receiver_profile_image}
                   alt="profile"
                   className="w-8 h-8 rounded-full object-cover"
                 />

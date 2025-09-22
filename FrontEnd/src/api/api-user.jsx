@@ -76,7 +76,9 @@ export const createChatRoom = async (sender_id, reciever_id, room_name) => {
     localStorage.setItem("roomId", roomId);
   } catch (error) {
     console.error("Error creating room", error.message);
-    if (error.response.data.error === "TokenExpiredError") {
+    if (error.response.data.message === "ChatRoom Already exists") {
+      return "ChatRoom Already exists";
+    } else if (error.response.data.error === "TokenExpiredError") {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       localStorage.removeItem("roomId");

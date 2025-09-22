@@ -72,9 +72,6 @@ export default function Login() {
 
       const data = await loginGoogleBuyer(google_token);
 
-      console.log(data);
-      
-
       if (!data) {
         toast("Error logging in...");
         setEmail("");

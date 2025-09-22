@@ -17,8 +17,11 @@ export default function RequirementCard({ requirement }) {
   const handleConnect = async (sId, rId, rName) => {
     try {
       setLoading(true);
-      await createChatRoom(sId, rId, rName);
+      const data = await createChatRoom(sId, rId, rName);
       navigate("/messages");
+      if (data === "ChatRoom Already exists") {
+        navigate("/messsges");
+      }
     } catch (error) {
       toast("Something went wrong!");
       console.error(error.message);
@@ -122,13 +125,19 @@ export default function RequirementCard({ requirement }) {
         </div>
 
         <div className="text-center mt-6">
-          <Button
-            onClick={() =>
-              handleConnect(user.user_id, requirement.buyer_id, user.user_name)
-            }
-          >
-            Connect
-          </Button>
+          {requirement.buyer_id !== user.user_id && (
+            <Button
+              onClick={() =>
+                handleConnect(
+                  user.user_id,
+                  requirement.buyer_id,
+                  user.user_name
+                )
+              }
+            >
+              Connect
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

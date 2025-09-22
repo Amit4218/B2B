@@ -16,6 +16,7 @@ import UploadImg from "../lib/uploadToCloudinary";
 import Loader from "../components/Loader";
 import { postRequirements } from "../api/api-user";
 import useCheckUserSession from "../hooks/checkIsUserAuthHook";
+import { useNavigate } from "react-router-dom";
 
 function PostLeads() {
   useCheckUserSession();
@@ -23,6 +24,7 @@ function PostLeads() {
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     product_title: "",
@@ -60,7 +62,7 @@ function PostLeads() {
     "Cosmetics",
     "Ayurveda",
     "Herbs",
-    "electronics"
+    "electronics",
   ];
 
   const handleChange = (field, value) => {
@@ -108,6 +110,7 @@ function PostLeads() {
 
       if (status === 200) {
         toast("Requirement submitted successfully!");
+        navigate("/");
         // Reset form
         setForm({
           product_title: "",

@@ -10,7 +10,6 @@ function Messages() {
   const [activeRoom, setActiveRoom] = useState(null);
   const { user } = useUser();
   const roomInLocalStorage = localStorage.getItem("roomId");
-  const roomDetails = JSON.parse(localStorage.getItem("roomDetails"));
 
   useEffect(() => {
     const callChatRoom = async () => {
@@ -51,9 +50,9 @@ function Messages() {
                   <div className="flex items-center gap-5">
                     <img
                       src={
-                        user.user_id == roomDetails.sender_id
-                          ? roomDetails.receiver_profile_image
-                          : roomDetails.sender_profile_image
+                        user.user_id == room.sender_id
+                          ? room.receiver_profile_image
+                          : room.sender_profile_image
                       }
                       alt="error"
                       className="w-8 h-8 rounded-full object-cover"

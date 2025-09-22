@@ -45,16 +45,9 @@ export default function Navbar() {
             Browse-Leads
           </Link>
 
-          {user && user.role == "buyer" && (
-            <>
-              <Link
-                to="/post-leads"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Post-Leads
-              </Link>
-            </>
-          )}
+          <Link to="/post-leads" className="text-gray-700 hover:text-gray-900">
+            Post-Leads
+          </Link>
 
           <Link to="/messages" className="text-gray-700 hover:text-gray-900">
             messages
@@ -115,23 +108,21 @@ export default function Navbar() {
                   Browse-Leads
                 </Link>
 
-                {user && user.role == "buyer" ? (
-                  <Link
-                    to="/post-leads"
-                    onClick={() => setOpen(false)}
-                    className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
-                  >
-                    Post-Leads
-                  </Link>
-                ) : (
-                  <Link
-                    to="/messages"
-                    onClick={() => setOpen(false)}
-                    className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
-                  >
-                    Messages
-                  </Link>
-                )}
+                <Link
+                  to="/post-leads"
+                  onClick={() => setOpen(false)}
+                  className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
+                >
+                  Post-Leads
+                </Link>
+
+                <Link
+                  to="/messages"
+                  onClick={() => setOpen(false)}
+                  className="text-lg bg-neutral-700 rounded text-white hover:text-gray-900 hover:bg-gray-500 p-1 text-center"
+                >
+                  Messages
+                </Link>
 
                 {/* <Link
                   to="/dashboard"

@@ -121,21 +121,15 @@ export default function RequirementCard({ requirement }) {
           Post Date: {new Date(requirement.created_at).toLocaleDateString()}
         </div>
 
-        {user.role === "seller" && (
-          <div className="text-center mt-6">
-            <Button
-              onClick={() =>
-                handleConnect(
-                  user.user_id,
-                  requirement.buyer_id,
-                  user.user_name
-                )
-              }
-            >
-              Connect
-            </Button>
-          </div>
-        )}
+        <div className="text-center mt-6">
+          <Button
+            onClick={() =>
+              handleConnect(user.user_id, requirement.buyer_id, user.user_name)
+            }
+          >
+            Connect
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

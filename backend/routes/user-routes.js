@@ -1,6 +1,8 @@
 import express from "express";
 import {
+  blockUserFromChat,
   createChatRoom,
+  deleteChat,
   deleteLead,
   getAllPostedLeads,
   getChatRooms,
@@ -31,7 +33,11 @@ router.get("/all-posted-leads", getUserLeads);
 router.put("/update-info", userProfileInfo);
 
 router.put("/delete-lead", deleteLead);
-  
+
+router.put("/delete-chatRoom/:roomId", deleteChat);
+
+router.put("/block-user", blockUserFromChat)
+
 router.put("/logout", logout);
 
 export default router;

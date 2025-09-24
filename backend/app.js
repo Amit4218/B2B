@@ -22,8 +22,6 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
-
   socket.on("joinRoom", (room_id) => {
     socket.join(room_id);
   });
@@ -33,9 +31,7 @@ io.on("connection", (socket) => {
     io.to(room_id).emit("message", { room_id, content, sender_id });
   });
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
+  socket.on("disconnect", () => {});
 });
 
 app.use(express.json());

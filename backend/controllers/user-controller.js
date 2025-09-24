@@ -124,7 +124,10 @@ export const getChatRooms = async (req, res) => {
   try {
     const chatrooms = await prisma.chatRoom.findMany({
       where: {
-        OR: [{ sender_id: newId }, { receiver_id: newId }],
+        OR: [
+          { sender_id: newId, sender_chatroom_delete: null },
+          { receiver_id: newId, receiver_chatroom_delete: null },
+        ],
       },
       select: {
         room_id: true,
@@ -135,6 +138,9 @@ export const getChatRooms = async (req, res) => {
         receiver_name: true,
         sender_profile_image: true,
         receiver_profile_image: true,
+        blocked: true,
+        sender_chatroom_delete: true,
+        receiver_chatroom_delete: true,
       },
     });
 
@@ -299,11 +305,11 @@ export const userProfileInfo = async (req, res) => {
 };
 
 export const deleteLead = async (req, res) => {
-  const id = req.user.user_id;
+  const { lead } = req.body;
   try {
-    const deletedLead = await prisma.requirements.update({
+    await prisma.requirements.update({
       where: {
-        buyer_id: id,
+        requirement_id: lead,
       },
       data: {
         is_deleted: true,
@@ -313,6 +319,85 @@ export const deleteLead = async (req, res) => {
     return res.status(200).json({
       message: "lead deleted successfully",
     });
+  } catch (error) {
+    return res.status(500).json({
+      message: "SOmething went wrong",
+    });
+  }
+};
+
+export const deleteChat = async (req, res) => {
+  const roomId = req.params.roomId;
+  const id = req.user.user_id;
+
+  try {
+    const room = await prisma.chatRoom.findUnique({
+      where: {
+        room_id: roomId,
+      },
+    });
+
+    if (room.sender_id === id) {
+      await prisma.chatRoom.update({
+        where: {
+          room_id: roomId,
+        },
+        data: {
+          sender_chatroom_delete: id,
+        },
+      });
+    }
+
+    if (room.receiver_id === id) {
+      await prisma.chatRoom.update({
+        where: {
+          room_id: roomId,
+        },
+        data: {
+          receiver_chatroom_delete: id,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      message: "ChatRoom deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "SOmething went wrong",
+    });
+  }
+};
+
+export const blockUserFromChat = async (req, res) => {
+  const { userId, roomId, blockUser } = req.body;
+
+  try {
+    if (blockUser) {
+      await prisma.chatRoom.update({
+        where: {
+          room_id: roomId,
+        },
+        data: {
+          blocked: userId,
+        },
+      });
+      return res.status(200).json({
+        message: "User blocked successfully",
+      });
+    } else {
+      await prisma.chatRoom.update({
+        where: {
+          room_id: roomId,
+        },
+        data: {
+          blocked: null,
+        },
+      });
+      return res.status(200).json({
+        message: "User unblocked successfully",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       message: "SOmething went wrong",

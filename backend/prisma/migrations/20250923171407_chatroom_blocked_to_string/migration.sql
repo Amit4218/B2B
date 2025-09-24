@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "public"."chatRoom" ALTER COLUMN "blocked" DROP NOT NULL,
+ALTER COLUMN "blocked" DROP DEFAULT,
+ALTER COLUMN "blocked" SET DATA TYPE TEXT;

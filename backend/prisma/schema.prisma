@@ -76,12 +76,13 @@ model chatRoom {
   created_at                  DateTime                    @default(now())
   paymentId                   String?       // later refrence to actual payments model
   room_name                   String?
-  is_chatroom_deleted         Boolean                     @default(false)
-  blocked                     Boolean                     @default(false)
+  blocked                     String?                     
   sender_name                 String?
   receiver_name               String?
   sender_profile_image        String?
   receiver_profile_image      String?
+  sender_chatroom_delete      String?                    
+  receiver_chatroom_delete    String?                    
 
   messages                    messages[]
   sender                      users                       @relation("UserSender", fields: [sender_id], references: [user_id], onDelete: Cascade)

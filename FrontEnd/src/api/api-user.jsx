@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Rss } from "lucide-react";
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -121,6 +122,79 @@ export const fetchOldMessages = async (roomId) => {
     return response.data.messages;
   } catch (error) {
     console.error("Error Fetching messages", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
+  }
+};
+
+export const deletePostedLead = async (leadId) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/api/v1/user/delete-lead`,
+      { lead: leadId },
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    console.error("Error getting all chatRooms", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
+  }
+};
+
+export const deleteChat = async (roomId) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/api/v1/user/delete-chatRoom/${roomId}`,
+      {},
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    console.error("Error getting all chatRooms", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
+  }
+};
+
+export const blockUserFromChat = async (userId, roomId, blockUser = true) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/api/v1/user/block-user`,
+      {
+        userId,
+        roomId,
+        blockUser,
+      },
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    console.error("Error getting all chatRooms", error.message);
     if (error.response.data.error === "TokenExpiredError") {
       localStorage.removeItem("user");
       localStorage.removeItem("token");

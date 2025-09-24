@@ -1,9 +1,0 @@
-import React from "react";
-import checkUserSession from "../hooks/checkIsUserAuthHook";
-
-function Dashboard() {
-  checkUserSession();
-  return <div>Dashboard</div>;
-}
-
-export default Dashboard;

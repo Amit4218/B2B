@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
-import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import SellerSignUp from "./pages/SellerSignUp";
@@ -12,7 +11,7 @@ import BrowseLeads from "./pages/BrowseLeads";
 import Profile from "./pages/Profile";
 import PostLeads from "./pages/PostLeads";
 import Messages from "./pages/Messages";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -30,7 +29,6 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/browse-leads" element={<BrowseLeads />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/post-leads" element={<PostLeads />} />

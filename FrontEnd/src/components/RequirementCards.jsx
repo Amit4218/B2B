@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { createChatRoom } from "../api/api-user";
+import { createChatRoom, deletePostedLead } from "../api/api-user";
 import { useUser } from "../context/userContext";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
@@ -21,6 +21,21 @@ export default function RequirementCard({ requirement }) {
       navigate("/messages");
       if (data === "ChatRoom Already exists") {
         navigate("/messages");
+      }
+    } catch (error) {
+      toast("Something went wrong!");
+      console.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDelete = async (leadId) => {
+    try {
+      setLoading(true);
+      const data = await deletePostedLead(leadId);
+      if (data === "lead deleted successfully") {
+        toast(data);
+        window.location.reload();
       }
     } catch (error) {
       toast("Something went wrong!");
@@ -125,7 +140,7 @@ export default function RequirementCard({ requirement }) {
         </div>
 
         <div className="text-center mt-6">
-          {requirement.buyer_id !== user.user_id && (
+          {requirement.buyer_id !== user.user_id ? (
             <Button
               onClick={() =>
                 handleConnect(
@@ -136,6 +151,14 @@ export default function RequirementCard({ requirement }) {
               }
             >
               Connect
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              className="mt-6"
+              onClick={() => handleDelete(requirement.requirement_id)}
+            >
+              delete
             </Button>
           )}
         </div>

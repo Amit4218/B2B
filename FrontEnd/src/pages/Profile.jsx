@@ -24,7 +24,7 @@ export default function Profile() {
                 <p className="text-gray-500 text-sm">Role: {user.role}</p>
               </div>
             </CardHeader>
-            <CardContent className="mt-6 space-y-3 text-center">
+            <CardContent className=" space-y-3 text-center">
               <p className="text-gray-700">
                 <span className="font-medium">City:</span> {user.city || "N/A"}
               </p>

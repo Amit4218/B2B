@@ -10,6 +10,23 @@ function ChatMain() {
   const roomDetails = JSON.parse(localStorage.getItem("roomDetails"));
   const { user } = useUser();
   const userId = user.user_id;
+  const [isDiabled, setIsDiabled] = useState(false);
+  const [blockedMessage, setBlockedMessage] = useState("");
+
+  useEffect(() => {
+    if (roomDetails?.blocked !== null && roomDetails?.blocked !== "") {
+      if (roomDetails.blocked === userId) {
+        setBlockedMessage("You have been blocked by the person.");
+        setIsDiabled(true);
+      } else {
+        setBlockedMessage("You have blocked the user, unblock to chat again.");
+        setIsDiabled(true);
+      }
+    } else {
+      setBlockedMessage("");
+      setIsDiabled(false);
+    }
+  }, [roomDetails, userId]);
 
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -116,14 +133,16 @@ function ChatMain() {
       >
         <Input
           type="text"
-          value={inputMessage}
+          value={isDiabled ? blockedMessage : inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="Type a message..."
           className="flex-1"
+          disabled={isDiabled}
         />
         <button
           type="submit"
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          hidden={isDiabled}
         >
           Send
         </button>

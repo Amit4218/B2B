@@ -110,7 +110,7 @@ function PostLeads() {
 
       if (status === 200) {
         toast("Requirement submitted successfully!");
-        navigate("/");
+        navigate("/browse-leads");
         // Reset form
         setForm({
           product_title: "",
@@ -228,7 +228,7 @@ function PostLeads() {
             <Label htmlFor="quantity_needed">Quantity Needed</Label>
             <Input
               id="quantity_needed"
-              type="number"
+              type="text"
               value={form.quantity_needed}
               onChange={(e) => handleChange("quantity_needed", e.target.value)}
               placeholder="Enter quantity needed"
@@ -241,7 +241,7 @@ function PostLeads() {
             <Label htmlFor="price_range">Price Range (per item)</Label>
             <Input
               id="price_range"
-              type="number"
+              type="text"
               value={form.price_range}
               onChange={(e) => handleChange("price_range", e.target.value)}
               placeholder="Enter price range"

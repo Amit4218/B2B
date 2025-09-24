@@ -24,7 +24,7 @@ export default function BrowseLeadsPage() {
   const [filtered, setFiltered] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("all");
-  const [city, setCity] = useState("all");
+  const [state, setState] = useState("all");
   const [priceRange, setPriceRange] = useState("");
   const [sort, setSort] = useState("newest");
   const navigate = useNavigate();
@@ -33,8 +33,8 @@ export default function BrowseLeadsPage() {
   const allCategories = [
     ...new Set((requirements || []).flatMap((r) => r.categories || [])),
   ];
-  const allCities = [
-    ...new Set((requirements || []).map((r) => r.city).filter(Boolean)),
+  const allstates = [
+    ...new Set((requirements || []).map((r) => r.state).filter(Boolean)),
   ];
 
   const handleApplyFilters = () => {
@@ -52,8 +52,8 @@ export default function BrowseLeadsPage() {
       temp = temp.filter((r) => r.categories?.includes(category));
     }
 
-    if (city !== "all") {
-      temp = temp.filter((r) => r.city === city);
+    if (state !== "all") {
+      temp = temp.filter((r) => r.state === state);
     }
 
     if (priceRange) {
@@ -95,7 +95,7 @@ export default function BrowseLeadsPage() {
   // Auto-apply filters whenever requirements or filter states change
   useEffect(() => {
     handleApplyFilters();
-  }, [requirements, keyword, category, city, priceRange, sort]);
+  }, [requirements, keyword, category, state, priceRange, sort]);
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-8">
@@ -151,14 +151,14 @@ export default function BrowseLeadsPage() {
 
               {/* City */}
               <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger id="city">
-                    <SelectValue placeholder="All Cities" />
+                <Label htmlFor="state">City</Label>
+                <Select value={state} onValueChange={setState}>
+                  <SelectTrigger id="state">
+                    <SelectValue placeholder="All States" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Cities</SelectItem>
-                    {allCities.map((c) => (
+                    <SelectItem value="all">All states</SelectItem>
+                    {allstates.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
                       </SelectItem>

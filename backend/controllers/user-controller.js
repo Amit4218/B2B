@@ -155,7 +155,7 @@ export const getChatRooms = async (req, res) => {
   }
 };
 
-export const updateSellerDetails = async (req, res) => {
+export const updateUserDetails = async (req, res) => {
   const { description, gst_number, city, state } = req.body;
 
   const user_id = req.user.user_id;
@@ -163,52 +163,32 @@ export const updateSellerDetails = async (req, res) => {
   try {
     const user = await prisma.users.findUnique({
       where: { user_id },
-      include: { seller: true },
     });
 
-    if (!user || user.role !== "seller") {
-      return res.status(404).json({ message: "Seller not found" });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
     }
 
-    let updatedSeller;
-    if (user.seller) {
-      updatedSeller = await prisma.seller.update({
-        where: { seller_id: user_id },
-        data: { description, gst_number },
-      });
-    } else {
-      // If seller row doesn't exist, create it
-      updatedSeller = await prisma.seller.create({
-        data: {
-          seller_id: user_id,
-          description,
-          gst_number,
-          created_at: new Date(),
-        },
-      });
-    }
-
-    const updatedUser = await prisma.users.update({
-      where: { user_id },
-      data: { city, state },
+    const updateUser = await prisma.users.update({
+      where: {
+        user_id: user_id,
+      },
+      data: {
+        city: city || "N/A",
+        state: state || "N/A",
+        gst_number: gst_number || "N/A",
+        description: description || "N/A",
+      },
     });
 
-    // Merge both
-    const mergedUser = {
-      ...updatedUser,
-      description: updatedSeller.description,
-      gst_number: updatedSeller.gst_number,
-    };
-
-    // Remove sensitive fields
     const {
-      password,
+      password: _,
       google_id,
       is_active,
       created_at,
       updated_at,
       ...safeUser
-    } = mergedUser;
+    } = updateUser;
 
     return res.status(200).json({
       message: "Seller details updated successfully",
@@ -275,31 +255,6 @@ export const getUserLeads = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Something went wrong",
-    });
-  }
-};
-
-export const userProfileInfo = async (req, res) => {
-  const { state, city } = req.body;
-  const id = req.user.user_id;
-
-  try {
-    const newInfo = await prisma.users.update({
-      where: {
-        user_id: id,
-      },
-      data: {
-        city: city,
-        state: state,
-      },
-    });
-
-    return res.status(200).json({
-      message: "info updated successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "SOmething went wrong",
     });
   }
 };

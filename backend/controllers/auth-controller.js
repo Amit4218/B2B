@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import generateUniqueName from "../utils/uniqueNameGeneratr.js";
 import googleTokenDecoder from "../utils/googleTokenDecoder.js";
+import { generateOtp, isOtpExpired } from "../utils/generateOtp.js";
+import { sendEmailNodeMailer } from "../utils/resendEmail.js";
 
 export const signIn = async (req, res) => {
   const { email, password } = req.body;
@@ -23,13 +25,6 @@ export const signIn = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(403).json({ message: "Invalid Credentials" });
-    }
-
-    let sellerData = null;
-    if (user.role === "seller") {
-      sellerData = await prisma.seller.findUnique({
-        where: { seller_id: user.user_id },
-      });
     }
 
     // creating session for the user
@@ -54,15 +49,10 @@ export const signIn = async (req, res) => {
       ...finalUser
     } = user;
 
-    // include seller details if needed
-    const safeUser = sellerData
-      ? { ...finalUser, seller: sellerData }
-      : finalUser;
-
     return res.status(200).json({
       token,
       message: "User login successful",
-      User: safeUser,
+      User: finalUser,
     });
   } catch (error) {
     return res.status(500).json({
@@ -74,9 +64,9 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
-    if (!email || !password || !role) {
+    if (!email || !password) {
       return res.status(400).json({ message: "All fields must be filled" });
     }
 
@@ -95,29 +85,12 @@ export const signUp = async (req, res) => {
       data: {
         user_name: uniqueUserName,
         avatar: `https://placehold.co/400?text=${uniqueUserName}&font=roboto`,
-        role,
         email,
         password: hashedPassword,
         google_id: null,
         created_at: new Date(),
       },
     });
-
-    // If SELLER, create seller record
-    if (role === "seller") {
-      await prisma.seller.create({
-        data: { seller_id: newUser.user_id, created_at: new Date() },
-      });
-    }
-
-    const {
-      password: _,
-      google_id,
-      is_active,
-      created_at,
-      updated_at,
-      ...finalUser
-    } = newUser;
 
     // create session
 
@@ -134,6 +107,15 @@ export const signUp = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    const {
+      password: _,
+      google_id,
+      is_active,
+      created_at,
+      updated_at,
+      ...finalUser
+    } = newUser;
+
     return res.status(201).json({ token, User: finalUser });
   } catch (error) {
     return res.status(500).json({
@@ -144,7 +126,7 @@ export const signUp = async (req, res) => {
 };
 
 export const googleSignIn = async (req, res) => {
-  const { token, role } = req.body;
+  const { token } = req.body;
 
   try {
     if (!token) {
@@ -170,17 +152,9 @@ export const googleSignIn = async (req, res) => {
           avatar: `https://placehold.co/400?text=${uniqueUserName}&font=roboto`,
           email: email,
           google_id: id,
-          role: role,
           password: null,
           created_at: new Date(),
         },
-      });
-    }
-
-    // If SELLER, create seller record
-    if (!user && role === "seller") {
-      await prisma.seller.create({
-        data: { seller_id: user.user_id, created_at: new Date() },
       });
     }
 
@@ -217,12 +191,142 @@ export const googleSignIn = async (req, res) => {
   }
 };
 
+export const SendOtpEmail = async (req, res) => {
+  const { email, type } = req.body;
+
+  try {
+    if (!email) {
+      return res.status(404).json({
+        message: "Email is required",
+      });
+    }
+
+    if (type === "send") {
+      const otp = generateOtp();
+
+      const existing = await prisma.otp.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (existing) {
+        await prisma.otp.delete({
+          where: {
+            email,
+          },
+        });
+      }
+
+      await prisma.otp.create({
+        data: {
+          email,
+          code: otp,
+          created_at: new Date(),
+        },
+      });
+
+      await sendEmailNodeMailer(email, otp);
+
+      return res.status(200).json({
+        message: "otp sent to email",
+      });
+    }
+
+    if (type === "resend") {
+      const existingOtp = await prisma.otp.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      // checks user otp time : 60 sec
+
+      if (isOtpExpired(existingOtp.created_at)) {
+        const otp = generateOtp();
+
+        await prisma.otp.update({
+          where: {
+            email,
+          },
+          data: {
+            code: otp,
+          },
+        });
+
+        await sendEmailNodeMailer(email, otp);
+
+        return res.status(200).json({
+          message: "otp sent successfully",
+        });
+      }
+
+      return res.status(500).json({
+        message: "otp has already been sent.",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!otp) {
+      return res.status(404).json({
+        message: "otp is required",
+      });
+    }
+
+    const existingOtp = await prisma.otp.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        code: true,
+      },
+    });
+
+    if (!existingOtp) {
+      return res.status(404).json({
+        message: "otp not found",
+      });
+    }
+
+    if (existingOtp.code === Number(otp)) {
+      await prisma.otp.delete({
+        where: {
+          email,
+        },
+      });
+
+      return res.status(200).json({
+        message: "email verified",
+      });
+    }
+
+    return res.status(500).json({
+      message: "invalid otp",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 export const updateExpiredUserSession = async (req, res) => {
   const user_id = req.body;
   try {
     await prisma.session.update({
       where: {
-        id: user_id,
+        user_id: user_id,
       },
       data: {
         updated_at: new Date(),

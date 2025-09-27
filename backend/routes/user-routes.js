@@ -10,9 +10,9 @@ import {
   getUserMessages,
   logout,
   postRequirements,
-  updateSellerDetails,
-  userProfileInfo,
+  updateUserDetails,
 } from "../controllers/user-controller.js";
+
 
 const router = express.Router();
 
@@ -24,19 +24,17 @@ router.get("/get-chatRooms", getChatRooms);
 
 router.post("/requirements", postRequirements);
 
-router.put("/update-seller", updateSellerDetails);
+router.put("/update-user", updateUserDetails);
 
 router.get("/get-leads", getAllPostedLeads);
 
 router.get("/all-posted-leads", getUserLeads);
 
-router.put("/update-info", userProfileInfo);
-
 router.put("/delete-lead", deleteLead);
 
 router.put("/delete-chatRoom/:roomId", deleteChat);
 
-router.put("/block-user", blockUserFromChat)
+router.put("/block-user", blockUserFromChat);
 
 router.put("/logout", logout);
 

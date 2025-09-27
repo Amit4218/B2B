@@ -15,7 +15,7 @@ datasource db {
 
 model users {
   user_id                     String      @id             @default(cuid())
-  role                        role                  
+  role                        role                        @default(user)
   avatar                      String                      @default("https://cdn-icons-png.flaticon.com/512/2202/2202112.png")
   user_name                   String                      @unique
   email                       String                      @unique       
@@ -23,12 +23,13 @@ model users {
   google_id                   String?                     @unique
   city                        String?
   state                       String?
+  description                 String?
+  gst_number                  String?
   is_active                   Boolean                     @default(true)
   created_at                  DateTime                
   updated_at                  DateTime                    @default(now())
 
   // relations 
-  seller                      seller?
   requirements                requirements[]
   sentChats                   chatRoom[]                  @relation("UserSender")
   receivedChats               chatRoom[]                  @relation("UserReceiver")
@@ -36,15 +37,6 @@ model users {
   user_session                session[]
 }
 
-model seller {
-  seller_id                   String         @id          @unique
-  description                 String?
-  gst_number                  String?
-  created_at                  DateTime          
-
-  // relation to user
-  user                        users                       @relation(fields: [seller_id], references: [user_id], onDelete: Cascade)
-}
 
 model requirements {
 
@@ -110,8 +102,14 @@ model session{
   user_session                users                       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
+model otp{
+  id                         String         @id           @default(cuid())
+  email                      String                       @unique
+  code                       Int                          
+  created_at                 DateTime                     @default(now())
+}
+
 enum role {
-  buyer
-  seller
+  user
   admin
 }

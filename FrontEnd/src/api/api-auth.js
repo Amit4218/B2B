@@ -34,16 +34,14 @@ const registerUser = async (email, password) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/api/v1/auth/sign-up`,
-      { email, password, role: "buyer" },
+      { email, password },
       {
         headers: { "Content-Type": "application/json" },
       }
     );
 
-    if (response.status === 200) {
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-
+    if (response.status === 201) {
+      localStorage.setItem("token", response.data.token);
       return response.data.User;
     }
     return;
@@ -76,12 +74,12 @@ const registerSeller = async (email, password) => {
   }
 };
 
-const UpdateSellerProfile = async (city, state, gst_number, description) => {
+const updateUserProfile = async (city, state, gst_number, description) => {
   // Updates seller profile
 
   try {
     const response = await axios.put(
-      `${BASE_URL}/api/v1/user/update-seller`,
+      `${BASE_URL}/api/v1/user/update-user`,
       { city, state, gst_number, description },
       {
         headers: {
@@ -94,6 +92,55 @@ const UpdateSellerProfile = async (city, state, gst_number, description) => {
     return response.data.User;
   } catch (error) {
     console.error("Registration error:", error);
+  }
+};
+
+const sendOtp = async (email, type) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/v1/auth/send-otp`,
+      {
+        email,
+        type,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(error.message);
+    return false;
+  }
+};
+
+const verifyOtp = async (email, otp) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/v1/auth/verify-otp`,
+      {
+        email,
+        otp,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.status === 200) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(error.message);
+    return false;
   }
 };
 
@@ -203,9 +250,11 @@ export {
   loginUser,
   registerUser,
   registerSeller,
-  UpdateSellerProfile,
+  updateUserProfile,
   logoutUser,
   loginGoogleBuyer,
   registerGoogleBuyer,
   registerGoogleSeller,
+  sendOtp,
+  verifyOtp,
 };

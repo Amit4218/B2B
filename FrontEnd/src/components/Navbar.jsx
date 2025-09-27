@@ -135,7 +135,7 @@ export default function Navbar() {
                 <div className="flex flex-col gap-2 mt-4">
                   {user ? (
                     <>
-                      <Button onClick={() => handelLogout}>Sign Out</Button>
+                      <Button onClick={() => handelLogout()}>Sign Out</Button>
                       <Button onClick={() => setOpen(false)} variant="outline">
                         <Link to={"/profile"}>Profile</Link>
                       </Button>

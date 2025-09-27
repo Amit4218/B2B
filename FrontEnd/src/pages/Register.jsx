@@ -8,22 +8,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser } from "../context/userContext";
-import { registerUser } from "../api/api-auth";
+import { sendOtp } from "../api/api-auth";
 import Loader from "../components/Loader";
 import { GoogleLogin } from "@react-oauth/google";
 import { AuthSchema } from "../formSchemaValidation/AuthSchema";
 import { loginGoogleBuyer } from "../api/api-auth";
 import { toast } from "sonner";
+import OtpMenu from "../components/OtpMenu";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isOtpSend, setIsOtpSend] = useState(false);
 
   const { setUser } = useUser();
   const navigate = useNavigate();
@@ -46,13 +47,12 @@ export default function Register() {
 
       setErrors({});
 
-      const data = await registerUser(email, password);
-      if (data != null && data != undefined) {
-        setUser(data);
+      const data = await sendOtp(email, "send");
+      if (data) {
+        setIsOtpSend(true);
+        return;
       }
-      setEmail("");
-      setPassword("");
-      navigate("/");
+      toast("something went wrong!");
     } catch (error) {
       setLoading(false);
     } finally {
@@ -75,7 +75,7 @@ export default function Register() {
         setUser(data);
         setEmail("");
         setPassword("");
-        navigate("/");
+        navigate("/browse-leads");
       }
     } catch (error) {
       setLoading(false);
@@ -88,6 +88,14 @@ export default function Register() {
     return (
       <>
         <Loader />
+      </>
+    );
+  }
+
+  if (isOtpSend) {
+    return (
+      <>
+        <OtpMenu email={email} password={password} />
       </>
     );
   }
@@ -137,7 +145,7 @@ export default function Register() {
             Register
           </Button>
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Separator className="flex-1" />
             <span className="text-xs text-gray-500">or</span>
             <Separator className="flex-1" />
@@ -145,7 +153,7 @@ export default function Register() {
 
           <Button className="w-full hover:cursor-pointer">
             <Link to={"/seller-sign-up"}>Create a Seller Account</Link>
-          </Button>
+          </Button> */}
 
           <GoogleLogin
             onSuccess={(credential) => {

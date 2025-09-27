@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
-import { UpdateSellerProfile } from "../api/api-auth";
+import { updateUserProfile } from "../api/api-auth";
 import Loader from "../components/Loader";
 import { sellerDetailsSchema } from "../formSchemaValidation/sellerDetailsSchema";
 
@@ -31,7 +31,7 @@ export default function SellerDetailsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedUser = await UpdateSellerProfile(
+    const updatedUser = await updateUserProfile(
       details.city,
       details.state,
       details.gst_number,

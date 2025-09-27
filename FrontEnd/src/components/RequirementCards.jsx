@@ -29,6 +29,7 @@ export default function RequirementCard({ requirement }) {
       setLoading(false);
     }
   };
+
   const handleDelete = async (leadId) => {
     try {
       setLoading(true);

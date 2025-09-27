@@ -14,7 +14,13 @@ function ChatMain() {
   const [blockedMessage, setBlockedMessage] = useState("");
 
   useEffect(() => {
-    if (roomDetails?.blocked !== null && roomDetails?.blocked !== "") {
+    if (!roomDetails) {
+      setBlockedMessage("");
+      setIsDiabled(false);
+      return;
+    }
+
+    if (roomDetails?.blocked !== null) {
       if (roomDetails.blocked === userId) {
         setBlockedMessage("You have been blocked by the person.");
         setIsDiabled(true);

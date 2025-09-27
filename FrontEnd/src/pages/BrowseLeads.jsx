@@ -151,7 +151,7 @@ export default function BrowseLeadsPage() {
 
               {/* City */}
               <div className="space-y-2">
-                <Label htmlFor="state">City</Label>
+                <Label htmlFor="state">State</Label>
                 <Select value={state} onValueChange={setState}>
                   <SelectTrigger id="state">
                     <SelectValue placeholder="All States" />

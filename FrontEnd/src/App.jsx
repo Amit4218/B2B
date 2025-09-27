@@ -11,6 +11,7 @@ import BrowseLeads from "./pages/BrowseLeads";
 import Profile from "./pages/Profile";
 import PostLeads from "./pages/PostLeads";
 import Messages from "./pages/Messages";
+import OtpMenu from "./components/OtpMenu";
 // import Footer from "./components/Footer";
 
 function App() {
@@ -19,8 +20,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/seller-sign-up" element={<SellerSignUp />} />
-        <Route path="/seller-details" element={<SellerDetailsPage />} />
+        <Route path="/seller-sign-up" element={<OtpMenu />} />
+        {/* <Route path="/seller-details" element={<SellerDetailsPage />} /> */}
 
         <Route
           path="/*"

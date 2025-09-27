@@ -8,7 +8,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser } from "../context/userContext";
@@ -137,7 +136,7 @@ export default function Login() {
             Login
           </Button>
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Separator className="flex-1" />
             <span className="text-xs text-gray-500">or</span>
             <Separator className="flex-1" />
@@ -145,7 +144,7 @@ export default function Login() {
 
           <Button className="w-full hover:cursor-pointer">
             <Link to={"/seller-sign-up"}>Create a Seller Account</Link>
-          </Button>
+          </Button> */}
 
           <GoogleLogin
             onSuccess={(credential) => {

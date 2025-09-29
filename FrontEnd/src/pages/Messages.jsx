@@ -4,28 +4,32 @@ import ChatMain from "../components/ChatMain";
 import { useUser } from "../context/userContext";
 import checkUserSession from "../hooks/checkIsUserAuthHook";
 import ChatMenu from "../components/ChatMenu";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 function Messages() {
   checkUserSession();
+  const navigate = useNavigate();
   const [chatRooms, setChatRooms] = useState([]);
   const [activeRoom, setActiveRoom] = useState(null);
   const { user } = useUser();
-  const roomInLocalStorage = localStorage.getItem("roomId");
+
+  const fetchChatRooms = async () => {
+    const rooms = await getAllChatRooms();
+    if (rooms === "TokenExpiredError") {
+      navigate("/login");
+      toast("Token expired, please login again.");
+    } else {
+      setChatRooms(rooms);
+    }
+  };
 
   useEffect(() => {
-    const callChatRoom = async () => {
-      const rooms = await getAllChatRooms();
-      if (rooms === "TokenExpiredError") {
-        navigate("/login");
-        toast("Token expired please login again..");
-      } else {
-        setChatRooms(rooms);
-      }
-      if (roomInLocalStorage != null) {
-        setActiveRoom(roomInLocalStorage);
-      }
-    };
-    callChatRoom();
+    fetchChatRooms();
+    const roomInLocalStorage = localStorage.getItem("roomId");
+    if (roomInLocalStorage) {
+      setActiveRoom(roomInLocalStorage);
+    }
   }, []);
 
   const handleOpenChat = (room) => {
@@ -34,12 +38,20 @@ function Messages() {
     setActiveRoom(room.room_id);
   };
 
+  const clearActiveRoom = () => {
+    localStorage.removeItem("roomId");
+    localStorage.removeItem("roomDetails");
+    setActiveRoom(null);
+  };
+
   return (
-    <div className="flex flex-col md:flex-row h-[90vh]">
+    <div className="flex flex-col md:flex-row flex-1 min-h-0 ">
       {/* Sidebar */}
-      <div className="w-full md:w-[30%] bg-gray-100 border-b md:border-r md:border-b-0">
+      <div className="w-full md:w-[30%] bg-gray-100 border-b md:border-r md:border-b-0 flex flex-col min-h-0">
         <div className="p-4">
-          <h2 className="text-xl font-semibold mb-4">Chat Rooms</h2>
+          <h2 className="text-xl font-semibold">Chat Rooms</h2>
+        </div>
+        <div className="px-4 pb-4 flex-1 min-h-0 overflow-y-auto">
           <div className="space-y-2">
             {chatRooms.length > 0 ? (
               chatRooms.map((room) => (
@@ -55,7 +67,7 @@ function Messages() {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        user.user_id == room.sender_id
+                        user.user_id === room.sender_id
                           ? room.receiver_profile_image
                           : room.sender_profile_image
                       }
@@ -74,7 +86,9 @@ function Messages() {
                             ? room.sender_id
                             : room.receiver_id
                         }
-                        className="text-gray-400 hover:text-gray-600 absolute"
+                        onRoomUpdate={fetchChatRooms}
+                        clearActiveRoom={clearActiveRoom}
+                        roomDetails={room}
                       />
                     </div>
                   </div>
@@ -89,7 +103,7 @@ function Messages() {
         </div>
       </div>
       {/* Main content area */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0 flex ">
         {activeRoom ? (
           <ChatMain />
         ) : (

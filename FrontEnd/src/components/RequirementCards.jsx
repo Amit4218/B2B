@@ -159,7 +159,7 @@ export default function RequirementCard({ requirement }) {
               className="mt-6"
               onClick={() => handleDelete(requirement.requirement_id)}
             >
-              delete
+              Delete
             </Button>
           )}
         </div>

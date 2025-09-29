@@ -37,8 +37,26 @@ function ChatMain() {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [blockStatus, setBlockStatus] = useState("");
+  const [blockUserId, setblockUserId] = useState("");
 
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const rDetails = JSON.parse(localStorage.getItem("roomDetails"));
+
+    if (blockStatus === "block") {
+      const newRoomDetails = { ...rDetails, blocked: blockUserId };
+      setIsDiabled(true);
+      localStorage.setItem("roomDetails", JSON.stringify(newRoomDetails));
+    }
+
+    if (blockStatus === "unblock") {
+      const newRoomDetails = { ...rDetails, blocked: null };
+      setIsDiabled(false);
+      localStorage.setItem("roomDetails", JSON.stringify(newRoomDetails));
+    }
+  }, [blockStatus, blockUserId]);
 
   //  auto-scroll to bottom whenever messages change
   useEffect(() => {
@@ -63,6 +81,11 @@ function ChatMain() {
       setMessages((prev) => [...prev, msg]);
     });
 
+    newSocket.on("block", ({ status, userId }) => {
+      setBlockStatus(status);
+      setblockUserId(userId);
+    });
+
     return () => {
       newSocket.disconnect();
     };
@@ -82,9 +105,9 @@ function ChatMain() {
   };
 
   return (
-    <div className="ml-1 w-[98%] flex flex-col">
+    <div className="ml-1 w-[98%] flex flex-col flex-1 min-h-0">
       {/* Messages */}
-      <div className="h-[79vh] overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => {
           const isSender = msg.sender_id === userId;
           const username = isSender

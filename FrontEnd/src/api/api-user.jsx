@@ -23,6 +23,28 @@ export const getLeads = async () => {
   }
 };
 
+export const getUserPostedLeads = async () => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/v1/user/all-posted-leads`,
+      {
+        headers: {
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response.data.userLeads;
+  } catch (error) {
+    console.error("error fetching all posted leads", error.message);
+    if (error.response.data.error === "TokenExpiredError") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomId");
+      return "TokenExpiredError";
+    }
+  }
+};
+
 export const postRequirements = async (data) => {
   try {
     const response = await axios.post(

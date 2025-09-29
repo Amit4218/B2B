@@ -246,6 +246,13 @@ export const getUserLeads = async (req, res) => {
         buyer_id: id,
         is_deleted: false,
       },
+      select: {
+        requirement_id: true,
+        product_title: true,
+        description: true,
+        categories: true,
+        created_at: true,
+      },
     });
 
     return res.status(200).json({
@@ -373,5 +380,39 @@ export const saveMessage = async (room_id, message, sender_id) => {
   } catch (error) {
     console.log(error.message);
     throw new Error("Failed to save message");
+  }
+};
+
+export const enableChat = async (roomId) => {
+  try {
+    const room = await prisma.chatRoom.findUnique({
+      where: {
+        room_id: roomId,
+      },
+      select: {
+        sender_chatroom_delete: true,
+        receiver_chatroom_delete: true,
+      },
+    });
+
+    if (
+      room.receiver_chatroom_delete != null ||
+      room.sender_chatroom_delete != null
+    ) {
+      await prisma.chatRoom.update({
+        where: {
+          room_id: roomId,
+        },
+        data: {
+          sender_chatroom_delete: null,
+          receiver_chatroom_delete: null,
+        },
+      });
+    }
+
+    return;
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Failed to enable chatroom");
   }
 };

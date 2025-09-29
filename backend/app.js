@@ -6,7 +6,7 @@ import { config } from "dotenv";
 import authRouter from "./routes/auth-routes.js";
 import userRoutes from "./routes/user-routes.js";
 import authTokenmiddleware from "./middleware/auth-middleware.js";
-import { saveMessage } from "./controllers/user-controller.js";
+import { enableChat, saveMessage } from "./controllers/user-controller.js";
 
 config();
 
@@ -28,10 +28,17 @@ io.on("connection", (socket) => {
 
   socket.on("message", ({ room_id, content, sender_id }) => {
     saveMessage(room_id, content, sender_id);
+    enableChat(room_id);
     io.to(room_id).emit("message", { room_id, content, sender_id });
   });
 
-  socket.on("disconnect", () => {});
+  socket.on("block", ({ roomId, status, userId }) => {
+    io.to(roomId).emit("block", { status: status, userId: userId });
+  });
+
+  socket.on("disconnect", () => {
+    // console.log("disconnected");
+  });
 });
 
 app.use(express.json());
